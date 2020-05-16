@@ -1,4 +1,4 @@
-package com.jbialy.rce;
+package com.jbialy.rce.callbacks;
 
 import java.util.function.Predicate;
 import java.util.function.Supplier;

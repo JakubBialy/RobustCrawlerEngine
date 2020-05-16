@@ -1,6 +1,6 @@
 package com.jbialy.rce.downloader.core;
 
-import com.jbialy.rce.SafetySwitch;
+import com.jbialy.rce.downloader.SafetySwitch;
 
 public interface Downloader<D, U> {
 

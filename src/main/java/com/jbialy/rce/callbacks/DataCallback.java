@@ -1,4 +1,4 @@
-package com.jbialy.rce;
+package com.jbialy.rce.callbacks;
 
 @FunctionalInterface
 public interface DataCallback<T> {

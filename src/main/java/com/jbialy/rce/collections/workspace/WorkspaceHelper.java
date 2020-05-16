@@ -1,16 +1,12 @@
 package com.jbialy.rce.collections.workspace;
 
-import com.jbialy.rce.JobStatistics;
-import com.jbialy.rce.RangeIntUriSet;
+import com.jbialy.rce.collections.RangeIntUriSet;
+import com.jbialy.rce.downloader.JobStatistics;
 import com.jbialy.rce.utils.NotImplementedError;
 
 import java.net.URI;
-import java.util.*;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.Collection;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 public class WorkspaceHelper {
     private WorkspaceHelper() {
@@ -103,188 +99,15 @@ public class WorkspaceHelper {
     }
 
     public static <T extends Comparable<T>> JobWorkspace<T> fromCollection(Collection<T> collection) {
-        return new JobWorkspace<T>() {
-            //            private final List<T> todo = new ArrayList<>(collection);
-            private final Set<T> todo = new HashSet<>(collection);
-            private final List<T> inProgress = new ArrayList<>(todo.size());
-            private final Collection<T> done = new HashSet<>();
-            private final Lock lock = new ReentrantLock();
-            private final Condition changeCondition = lock.newCondition();
-//            private int doneCounter = 0;
-
-            @Override
-            public JobWorkspace<T> copy() {
-                throw new NotImplementedError();
-            }
-
-            @Override
-            public JobStatistics getJobStatistics() {
-                throw new NotImplementedError();
-            }
-
-            @Override
-            public T getAndMarkAsInProgress() {
-                lock.lock();
-                try {
-                    if (!todo.isEmpty()) {
-                        T t = this.todo.stream().findAny().get();
-                        todo.remove(t);
-//                        T t = todo.remove(0);
-                        this.inProgress.add(t);
-                        return t;
-                    } else {
-                        return null;
-                    }
-                } finally {
-                    changeCondition.signalAll();
-                    lock.unlock();
-                }
-            }
-
-            @Override
-            public boolean isToDoEmpty() {
-                lock.lock();
-                try {
-                    while (this.todo.isEmpty() && !this.inProgress.isEmpty()) {
-                        try {
-                            changeCondition.await();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                            Thread.currentThread().interrupt();
-                        }
-                    }
-
-                    return this.todo.isEmpty();
-                } finally {
-                    lock.unlock();
-                }
-            }
-
-            @Override
-            public int todoCount() {
-                return this.todo.size();
-            }
-
-            @Override
-            public boolean isInProgressEmpty() {
-                return this.inProgress.isEmpty();
-            }
-
-            @Override
-            public boolean addToDo(T t) {
-                lock.lock();
-                try {
-                    if (this.done.contains(t) || this.inProgress.contains(t)) {
-                        return false;
-                    } else {
-                        return this.todo.add(t);
-                    }
-                } finally {
-                    changeCondition.signalAll();
-                    lock.unlock();
-                }
-            }
-
-            @Override
-            public boolean addAllToDo(Collection<T> collection) {
-                List<T> data = collection.stream().distinct().collect(Collectors.toList()); //make optional
-
-                lock.lock();
-                try {
-                    data.removeAll(this.done); //add switch on/off
-                    data.removeAll(this.inProgress); //add switch on/off
-
-                    return this.todo.addAll(data);
-                } finally {
-                    changeCondition.signalAll();
-                    lock.unlock();
-                }
-            }
-
-            @Override
-            public boolean markAsDone(T t) {
-                lock.lock();
-                try {
-                    final boolean removeResult = this.inProgress.remove(t);
-
-                    done.add(t);
-
-                    return removeResult;
-                } finally {
-                    changeCondition.signalAll();
-                    lock.unlock();
-                }
-            }
-
-            @Override
-            public boolean markAsDone(T t1, T t2) {
-                if (t1.equals(t2)) {
-                    return markAsDone(t1);
-                } else {
-                    lock.lock();
-                    try {
-                        final boolean removeFirstResult = this.inProgress.remove(t1);
-                        final boolean removeSecondResult = this.inProgress.remove(t2);
-
-                        done.add(t1);
-                        done.add(t2);
-
-                        return removeFirstResult || removeSecondResult;
-                    } finally {
-                        changeCondition.signalAll();
-                        lock.unlock();
-                    }
-                }
-            }
-
-            @Override
-            public int doneCount() {
-                lock.lock();
-                try {
-                    return done.size();
-                } finally {
-                    lock.unlock();
-                }
-            }
-
-            @Override
-            public int toDoAndInProgressAndDoneCount() {
-                lock.lock();
-                try {
-                    final int result = todo.size() + inProgress.size() + done.size();
-                    return result;
-                } finally {
-                    lock.unlock();
-                }
-            }
-
-            @Override
-            public Collection<T> getAllItems() {
-                List<T> result = new ArrayList<>(this.todo.size() + this.inProgress.size());
-                result.addAll(this.todo);
-                result.addAll(this.inProgress);
-                return result;
-            }
-
-            @Override
-            public Collection<T> getToDoItems() {
-                return new ArrayList<>(this.todo);
-            }
-
-            @Override
-            public Collection<T> getDoneItems() {
-                throw new NotImplementedError();
-            }
-
-            @Override
-            public Collection<T> getExceptDone(Collection<T> col) {
-                return null;
-            }
-        };
+        return new CollectionWorkspace<T>(collection);
     }
 
     public static <U extends Comparable<U>> JobWorkspace<U> fromCollectionAsSet(Collection<U> collection) {
         return CollectionWorkspace.fromToDoCollection(collection);
+    }
+
+    public static <U extends Comparable<U>> JobWorkspace_2<U> fromCollectionAsSet_2(Collection<U> collection) {
+        return JobWorkspace2Impl.fromToDoCollection(collection);
     }
 
     public static class MemoryEfficient {

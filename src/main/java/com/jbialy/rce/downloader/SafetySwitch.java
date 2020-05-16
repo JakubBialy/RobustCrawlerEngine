@@ -1,4 +1,4 @@
-package com.jbialy.rce;
+package com.jbialy.rce.downloader;
 
 import java.util.function.Predicate;
 

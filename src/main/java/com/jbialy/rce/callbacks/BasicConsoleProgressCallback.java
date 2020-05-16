@@ -1,7 +1,6 @@
 package com.jbialy.rce.callbacks;
 
-import com.jbialy.rce.DataCallback;
-import com.jbialy.rce.JobStatistics;
+import com.jbialy.rce.downloader.JobStatistics;
 import com.jbialy.rce.utils.Utils;
 
 public class BasicConsoleProgressCallback implements DataCallback<JobStatistics> {
@@ -109,11 +108,13 @@ public class BasicConsoleProgressCallback implements DataCallback<JobStatistics>
         final double doublePercentage = 100 * stats.getDoneTasks() / (double) stats.getAllTasksCount();
         String percentage = Utils.toHumanReadableMetricSize(doublePercentage, "", 2);
 //        System.out.println(stats + " avgSpd: " + Utils.toHumanReadableMetricSize(avgSpd, "", 2) + " | " + percentage + " %");
+        final String progressPercentage = toStringProgress(doublePercentage / 100.0, 16);
+
         System.out.println(
                 stats +
                         " avgSpd: " +
                         Utils.toHumanReadableMetricSize(avgSpd, "", 2) + " | " +
-                        toStringProgress(doublePercentage / 100.0, 16) +
+                        progressPercentage +
                         "| " +
                         percentage + " %");
     }

@@ -2,7 +2,7 @@ package com.jbialy.rce.collections.workspace;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.jbialy.rce.JobStatistics;
+import com.jbialy.rce.downloader.JobStatistics;
 import com.jbialy.rce.utils.NotImplementedError;
 
 import java.io.IOException;
@@ -22,7 +22,7 @@ public class CollectionWorkspace<T> implements JobWorkspace<T> {
     private final transient Condition changeCondition;
     private final JobStatistics jobStatistics;
 
-    private CollectionWorkspace(Collection<T> collection) {
+    public CollectionWorkspace(Collection<T> collection) {
         this.lock = new ReentrantLock();
         this.changeCondition = lock.newCondition();
 
@@ -35,7 +35,8 @@ public class CollectionWorkspace<T> implements JobWorkspace<T> {
         long toDoCount = this.map.values().stream().filter(val -> val.equals(0L)).count();
         long inProgressCount = this.map.values().stream().filter(val -> val.equals(1L)).count();
         long doneCount = this.map.values().stream().filter(val -> val > 1L).count();
-        jobStatistics = new JobStatistics(0L, doneCount, inProgressCount, toDoCount);
+//        jobStatistics = new JobStatistics(0L, doneCount, inProgressCount, toDoCount);
+        jobStatistics = new JobStatistics(0L, doneCount, toDoCount);
     }
 
     private CollectionWorkspace(HashMap<T, Long> map) {
@@ -65,7 +66,8 @@ public class CollectionWorkspace<T> implements JobWorkspace<T> {
                 long toDoCount = otherCollectionWSMapCopy.values().stream().filter(val -> val.equals(0L)).count();
                 long inProgressCount = otherCollectionWSMapCopy.values().stream().filter(val -> val.equals(1L)).count();
                 long doneCount = otherCollectionWSMapCopy.values().stream().filter(val -> val > 1L).count();
-                final JobStatistics statistics = new JobStatistics(otherWS.getJobStatistics().getTasksSentToReceiver(), doneCount, inProgressCount, toDoCount);
+//                final JobStatistics statistics = new JobStatistics(otherWS.getJobStatistics().getTasksSentToReceiver(), doneCount, inProgressCount, toDoCount);
+                final JobStatistics statistics = new JobStatistics(otherWS.getJobStatistics().getTasksSentToReceiver(), doneCount, toDoCount);
 
                 return new CollectionWorkspace<T>(otherCollectionWSMapCopy, statistics);
             } else {
@@ -149,7 +151,8 @@ public class CollectionWorkspace<T> implements JobWorkspace<T> {
         try {
 
 //            while (!this.map.containsValue(0L) && this.map.containsValue(1L)) {
-            while (this.jobStatistics.getTasksTodo() == 0L && this.jobStatistics.getTasksInProgress() != 0L) {
+//            while (this.jobStatistics.getTasksTodo() == 0L && this.jobStatistics.getTasksInProgress() != 0L) {
+            while (this.jobStatistics.getTasksTodo() == 0L) {
                 changeCondition.await();
             }
 
@@ -161,7 +164,7 @@ public class CollectionWorkspace<T> implements JobWorkspace<T> {
                     .map(entry -> {
                         final T foundKey = entry.getKey();
                         this.map.put(foundKey, 1L);
-                        this.jobStatistics.moveOneTaskFromToDoToInProgress();
+//                        this.jobStatistics.moveOneTaskFromToDoToInProgress();
                         return foundKey;
 
                     }).orElseGet(null);
@@ -213,7 +216,7 @@ public class CollectionWorkspace<T> implements JobWorkspace<T> {
         if (result.isPresent()) {
             T foundKey = result.get();
             this.map.put(foundKey, 1L);
-            this.jobStatistics.moveOneTaskFromToDoToInProgress();
+//            this.jobStatistics.moveOneTaskFromToDoToInProgress();
             return foundKey;
         } else {
             return null;
@@ -230,7 +233,8 @@ public class CollectionWorkspace<T> implements JobWorkspace<T> {
                 return false;
             }
 
-            while (this.jobStatistics.getTasksTodo() == 0L && this.jobStatistics.getTasksInProgress() != 0) {
+//            while (this.jobStatistics.getTasksTodo() == 0L && this.jobStatistics.getTasksInProgress() != 0) {
+            while (this.jobStatistics.getTasksTodo() == 0L) {
                 changeCondition.await();
             }
 
@@ -261,7 +265,8 @@ public class CollectionWorkspace<T> implements JobWorkspace<T> {
     public boolean isInProgressEmpty() {
         lock.lock();
         try {
-            return this.jobStatistics.getTasksInProgress() != 0;
+//            return this.jobStatistics.getTasksInProgress() != 0;
+            return true;
         } finally {
             lock.unlock();
             checkInternalState();
@@ -274,9 +279,10 @@ public class CollectionWorkspace<T> implements JobWorkspace<T> {
         try {
             if (this.map.putIfAbsent(t, 0L) != null) {
                 this.jobStatistics.incrementTasksToDo();
-                return true;
-            } else {
                 return false;
+            } else {
+                this.jobStatistics.incrementTasksToDo();
+                return true;
             }
         } finally {
             changeCondition.signalAll();
@@ -314,7 +320,8 @@ public class CollectionWorkspace<T> implements JobWorkspace<T> {
         try {
             return this.map.computeIfPresent(t, (key, oldValue) -> {
                 if (oldValue == 1) {
-                    this.jobStatistics.moveOneTaskFromInProgressToDone();
+//                    this.jobStatistics.moveOneTaskFromInProgressToDone();
+                    this.jobStatistics.moveOneTaskFromToDoToDone();
                 }
 
                 return oldValue + 1;
@@ -335,7 +342,8 @@ public class CollectionWorkspace<T> implements JobWorkspace<T> {
             try {
                 boolean t1Result = this.map.computeIfPresent(t1, (key, oldValue) -> {
                     if (oldValue == 1) {
-                        this.jobStatistics.moveOneTaskFromInProgressToDone();
+//                        this.jobStatistics.moveOneTaskFromInProgressToDone();
+                        this.jobStatistics.moveOneTaskFromToDoToDone();
                     }
 
                     return oldValue + 1;
@@ -343,7 +351,8 @@ public class CollectionWorkspace<T> implements JobWorkspace<T> {
 
                 boolean t2Result = this.map.computeIfPresent(t2, (key, oldValue) -> {
                     if (oldValue == 1) {
-                        this.jobStatistics.moveOneTaskFromInProgressToDone();
+//                        this.jobStatistics.moveOneTaskFromInProgressToDone();
+                        this.jobStatistics.moveOneTaskFromToDoToDone();
                     }
 
                     return oldValue + 1;

@@ -1,6 +1,5 @@
-package com.jbialy.rce;
+package com.jbialy.rce.collections;
 
-import com.jbialy.rce.collections.DenseIntSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

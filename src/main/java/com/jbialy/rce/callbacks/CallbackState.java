@@ -1,4 +1,4 @@
-package com.jbialy.rce;
+package com.jbialy.rce.callbacks;
 
 import java.time.Duration;
 
@@ -11,11 +11,11 @@ public class CallbackState {
         this.triesUntilLastCallCounter = triesUntilLastCallCounter;
     }
 
-    Duration durationUntilLastCall() {
+    public Duration durationUntilLastCall() {
         return Duration.ofMillis(System.currentTimeMillis() - lastCallMillisTimestamp);
     }
 
-    long triesUntilLastCall() {
+    public long triesUntilLastCall() {
         return triesUntilLastCallCounter;
     }
 

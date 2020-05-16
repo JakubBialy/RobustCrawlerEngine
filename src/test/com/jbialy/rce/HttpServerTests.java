@@ -1,5 +1,6 @@
 package com.jbialy.rce;
 
+import com.jbialy.rce.collections.workspace.JobWorkspace2Impl;
 import com.jbialy.rce.downloader.core.CrawlerEngine;
 import com.jbialy.rce.callbacks.BasicConsoleProgressCallback;
 import com.jbialy.rce.collections.workspace.CollectionWorkspace;
@@ -26,7 +27,6 @@ import java.time.Duration;
 import static com.jbialy.rce.TriggerHelper.*;
 import static com.jbialy.rce.TriggerHelper.after;
 import static com.jbialy.rce.utils.sneakytry.TryUtils.sneakyTry;
-
 
 public class HttpServerTests {
     private static final Path TMP_DIR = Paths.get("./test_dir");
@@ -66,14 +66,15 @@ public class HttpServerTests {
         final URI seed = mockDownloader.getFirstPage();
 
         JobData<String, URI> job = new JobBuilder<String, URI>
-                (() -> CollectionWorkspace.fromFileOrElseCreateFromSeed(URI.class, checkpointFile, seed))
-                .setConfig(new EngineConfig(4, 2, Long.MAX_VALUE)) //Optional
+//                (() -> CollectionWorkspace.fromFileOrElseCreateFromSeed(URI.class, checkpointFile, seed))
+                (() -> JobWorkspace2Impl.fromFileOrElseCreateFromSeed(URI.class, checkpointFile, seed))
+                .setConfig(new EngineConfig(2, 2, Long.MAX_VALUE)) //Optional
                 .setDownloader(mockDownloader) //Optional
                 .setUriExtractor(HtmlUtils::simpleExtractUris) // Optional
                 .setPassToReceiverPredicate(downloadResult -> true) //Optional
-                .checkpointCallback( //optional
-                        after(Duration.ofMinutes(15)).or(afterItems(1_000)),
-                        ws -> sneakyTry(() -> FileUtils.stringToFile(CollectionWorkspace.toJSON(ws, true), checkpointFile)))
+//                .checkpointCallback( //optional
+//                        after(Duration.ofMinutes(15)).or(afterItems(100_000)),
+//                        ws -> sneakyTry(() -> FileUtils.stringToFile(JobWorkspace2Impl.toJSON(ws, true), checkpointFile)))
                 .setReceiver(mockReceiver)
                 .progressUpdate(
                         after(Duration.ofSeconds(1)).and(afterItems(1)),

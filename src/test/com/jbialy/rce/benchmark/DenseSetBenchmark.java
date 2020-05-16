@@ -1,4 +1,4 @@
-package com.jbialy.tests.benchmark;
+package com.jbialy.rce.benchmark;
 
 import com.jbialy.rce.collections.DenseIntSet;
 import org.openjdk.jmh.annotations.*;

@@ -1,7 +1,7 @@
 package com.jbialy.rce.collections.workspace;
 
 
-import com.jbialy.rce.JobStatistics;
+import com.jbialy.rce.downloader.JobStatistics;
 
 import java.util.Collection;
 

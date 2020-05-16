@@ -1,5 +1,7 @@
 package com.jbialy.rce;
 
+import com.jbialy.rce.callbacks.CallbackState;
+
 import java.time.Duration;
 import java.util.function.Predicate;
 
