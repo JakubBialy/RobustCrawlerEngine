@@ -1,8 +1,10 @@
-package com.jbialy.tests.server;
+package com.jbialy.rce.server;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,21 +24,35 @@ public class MockHtmlUtils {
         }
     }
 
-    @NotNull
-    public static String createHtmlMockPage(URI baseUri, long currentPageId, int hrefsToPreviousPages, long firstPageId, int hrefsToNextPages, long maxPageId) {
-        String response = "";
-        for (long i = Math.min(hrefsToPreviousPages, currentPageId - firstPageId - 1); i > 0L; i--) {
+    public static List<URI> createURIs(URI baseUri, long currentPageId, int previousUris, long firstPageId, int nextUris, long maxPageId) {
+        ArrayList<URI> result = new ArrayList<>();
+
+        for (long i = Math.min(previousUris, currentPageId - firstPageId - 1); i > 0L; i--) {
             final long nextId = currentPageId - i - 1;
-            response += "<a href=\"" + baseUri.resolve(URI.create("/test?id=" + nextId)).toString() + "\">LINK (" + nextId + ")<a/><br>";
+            result.add(baseUri.resolve(URI.create("/test?id=" + nextId)));
         }
 
-        response += "<br><a href=\"" + baseUri.resolve(URI.create("/test?id=" + currentPageId)).toString() + "\">LINK (" + currentPageId + ")<a/><br><br>";
+        result.add(URI.create("/test?id=" + currentPageId));
 
-        final long nextHrefsCount = Math.min(hrefsToNextPages, maxPageId - currentPageId);
+        final long nextHrefsCount = Math.min(nextUris, maxPageId - currentPageId);
         for (long i = 0L; i < nextHrefsCount; i++) {
             final long nextId = currentPageId + 1L + i;
-            response += "<a href=\"" + baseUri.resolve(URI.create("/test?id=" + nextId)).toString() + "\">LINK (" + nextId + ")<a/><br>";
+            result.add(baseUri.resolve(URI.create("/test?id=" + nextId)));
         }
-        return response;
+
+        result.trimToSize();
+        return result;
+    }
+
+    @NotNull
+    public static String createHtmlMockPage(URI baseUri, long currentPageId, int hrefsToPreviousPages, long firstPageId, int hrefsToNextPages, long maxPageId) {
+        final List<URI> uris = createURIs(baseUri, currentPageId, hrefsToPreviousPages, firstPageId, hrefsToNextPages, maxPageId);
+        String result = "";
+
+        for (int i = 0; i < uris.size(); i++) {
+            result += "<a href=\"" + baseUri.resolve(URI.create("/test?id=" + currentPageId)).toString() + "\">LINK (" + currentPageId + ")<a/><br>";
+        }
+
+        return result;
     }
 }

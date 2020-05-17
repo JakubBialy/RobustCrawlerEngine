@@ -1,4 +1,4 @@
-package com.jbialy.tests.server;
+package com.jbialy.rce.server;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;

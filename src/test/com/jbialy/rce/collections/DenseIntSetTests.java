@@ -1,4 +1,4 @@
-package com.jbialy.tests.collections;
+package com.jbialy.rce.collections;
 
 import com.jbialy.rce.collections.DenseIntSet;
 import org.jetbrains.annotations.NotNull;

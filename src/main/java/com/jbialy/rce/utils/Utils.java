@@ -2,6 +2,7 @@ package com.jbialy.rce.utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.zip.DeflaterInputStream;
 import java.util.zip.InflaterInputStream;
 import java.util.zip.ZipException;
@@ -148,6 +149,17 @@ public class Utils {
         }
 
         return roundedString;
+    }
+
+    public static <T> void shuffleArray(T[] inputArray) {
+        final ThreadLocalRandom random = ThreadLocalRandom.current();
+        for (int i = inputArray.length - 1; i > 0; i--) {
+            int indexToSwap = random.nextInt(i + 1);
+
+            T tmp = inputArray[i];
+            inputArray[i] = inputArray[indexToSwap];
+            inputArray[indexToSwap] = tmp;
+        }
     }
 
 }

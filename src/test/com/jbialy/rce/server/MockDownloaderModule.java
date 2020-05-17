@@ -1,4 +1,4 @@
-package com.jbialy.tests.server;
+package com.jbialy.rce.server;
 
 
 import com.jbialy.rce.downloader.core.DownloadResponse;
@@ -10,8 +10,8 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
-import static com.jbialy.tests.server.MockHtmlUtils.createHtmlMockPage;
-import static com.jbialy.tests.server.MockHtmlUtils.extractLongFromStringsEnd;
+import static com.jbialy.rce.server.MockHtmlUtils.createHtmlMockPage;
+import static com.jbialy.rce.server.MockHtmlUtils.extractLongFromStringsEnd;
 
 public class MockDownloaderModule implements Downloader<String, URI> {
     private static final Map<String, List<String>> EMPTY_RESPONSE_HEADERS_MAP = Map.of();

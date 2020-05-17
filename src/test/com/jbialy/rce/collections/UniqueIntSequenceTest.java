@@ -1,4 +1,4 @@
-package com.jbialy.tests.collections;
+package com.jbialy.rce.collections;
 
 import com.jbialy.rce.collections.UniqueIntSequence;
 import com.jbialy.tests.utils.TestUtils;

@@ -33,7 +33,7 @@ public class CollectionWorkspace<T> implements JobWorkspace<T> {
         }
 
         long toDoCount = this.map.values().stream().filter(val -> val.equals(0L)).count();
-        long inProgressCount = this.map.values().stream().filter(val -> val.equals(1L)).count();
+//        long inProgressCount = this.map.values().stream().filter(val -> val.equals(1L)).count();
         long doneCount = this.map.values().stream().filter(val -> val > 1L).count();
 //        jobStatistics = new JobStatistics(0L, doneCount, inProgressCount, toDoCount);
         jobStatistics = new JobStatistics(0L, doneCount, toDoCount);

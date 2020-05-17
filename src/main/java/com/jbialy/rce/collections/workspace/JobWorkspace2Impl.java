@@ -13,66 +13,50 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class JobWorkspace2Impl<T extends Comparable<T>> implements JobWorkspace_2<T> {
-    //  to do
-    //  in progress
-    //  done
-    //  damaged
-    private final SortedSet<T> allItems;
-    private final NavigableSet<T> toDoItems;
+    //  1. to do
+    //  2. in progress
+    //  3.1 done
+    //  3.2 damaged
+    private final Set<T> allItems;
+    private final Queue<T> toDoItems;
     private final Set<T> inProgressItems;
     private final Set<T> doneItems;
     private final Set<T> damagedItems;
     private final JobStatistics jobStatistics;
-    //    private final Lock lock = new ReentrantLock();
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final Condition inProgressEmptyCondition = readWriteLock.writeLock().newCondition();
 
     private JobWorkspace2Impl() {
-        this.allItems = new TreeSet<>();
-        this.toDoItems = new TreeSet<>();
-        this.inProgressItems = new HashSet<>();
-        this.doneItems = new HashSet<>();
-        this.damagedItems = new HashSet<>();
+        this.allItems = new HashSet<>();
+        this.toDoItems = new ArrayDeque<>();
+        this.inProgressItems = new LinkedHashSet<>();
+        this.doneItems = new LinkedHashSet<>();
+        this.damagedItems = new LinkedHashSet<>();
         this.jobStatistics = new JobStatistics();
     }
 
     private JobWorkspace2Impl(Collection<T> todo) {
         this();
         this.toDoItems.addAll(todo);
-
-        allItems.addAll(this.toDoItems);
-
+        this.allItems.addAll(this.toDoItems);
         this.jobStatistics.incrementTasksToDo(todo.size());
     }
 
-    private JobWorkspace2Impl(Collection<T> todo, Collection<T> inProgress, Collection<T> done, Collection<T> damaged) {
-        this.allItems = new TreeSet<>();
-        this.toDoItems = new TreeSet<>(todo);
-        this.inProgressItems = new HashSet<>(inProgress);
-        this.doneItems = new HashSet<>(done);
-        this.damagedItems = new HashSet<>(damaged);
-
-        allItems.addAll(this.toDoItems);
-        allItems.addAll(this.inProgressItems);
-        allItems.addAll(this.doneItems);
-        allItems.addAll(this.damagedItems);
-
-        this.jobStatistics = new JobStatistics();
+    private JobWorkspace2Impl(Set<T> allItems, Queue<T> todo, Set<T> inProgress, Set<T> done, Set<T> damaged) {
+        this(allItems, todo, inProgress, done, damaged, new JobStatistics());
     }
 
-    private JobWorkspace2Impl(NavigableSet<T> todo, Set<T> inProgress, Set<T> done, Set<T> damaged, JobStatistics jobStatistics) {
-        this.allItems = new TreeSet<>();
+    private JobWorkspace2Impl(Set<T> allItems, Queue<T> todo, Set<T> inProgress, Set<T> done, Set<T> damaged, JobStatistics jobStatistics) {
+        this.allItems = allItems;
         this.toDoItems = todo;
         this.inProgressItems = inProgress;
         this.doneItems = done;
         this.damagedItems = damaged;
-
-        allItems.addAll(this.toDoItems);
-        allItems.addAll(this.inProgressItems);
-        allItems.addAll(this.doneItems);
-        allItems.addAll(this.damagedItems);
-
         this.jobStatistics = jobStatistics;
+    }
+
+    public static <T extends Comparable<T>> JobWorkspace2Impl<T> createCustom(Set<T> allItems, Queue<T> todo, Set<T> inProgress, Set<T> done, Set<T> damaged) {
+        return new JobWorkspace2Impl<>(allItems, todo, inProgress, done, damaged);
     }
 
     public static <T extends Comparable<T>> JobWorkspace2Impl<T> createEmpty() {
@@ -87,9 +71,10 @@ public class JobWorkspace2Impl<T extends Comparable<T>> implements JobWorkspace_
         return new GsonBuilder().create().fromJson(json, TypeToken.getParameterized(JobWorkspace2Impl.class, type).getType());
     }
 
-    public static <T extends Comparable<T>> JobWorkspace2Impl<T> fromJobWorkspace(JobWorkspace_2<T> otherWS, boolean interpretInProgressAsToDo) {
+   /* public static <T extends Comparable<T>> JobWorkspace2Impl<T> fromJobWorkspace(JobWorkspace_2<T> otherWS, boolean interpretInProgressAsToDo) {
         final JobWorkspace_2<T> otherWorkspaceCopy = otherWS.copy();
 
+        final Collection<T> allItems = otherWorkspaceCopy.getToDoItems();
         final Collection<T> todo = otherWorkspaceCopy.getToDoItems();
         final Collection<T> inProgress = otherWorkspaceCopy.getInProgressItems();
         final Collection<T> done = otherWorkspaceCopy.getDoneItems();
@@ -100,16 +85,16 @@ public class JobWorkspace2Impl<T extends Comparable<T>> implements JobWorkspace_
             inProgress.clear();
         }
 
-        return new JobWorkspace2Impl<>(todo, inProgress, done, damaged);
+        return new JobWorkspace2Impl<>(allItems, todo, inProgress, done, damaged);
     }
-
-    public static <T extends Comparable<T>> String toJSON(JobWorkspace_2<T> otherWS, boolean interpretInProgressAsToDo) {
+*/
+    /*public static <T extends Comparable<T>> String toJSON(JobWorkspace_2<T> otherWS, boolean interpretInProgressAsToDo) {
         if (otherWS instanceof JobWorkspace2Impl<T> jobWorkspace) {
             return jobWorkspace.serializeToJSON();
         } else {
             return fromJobWorkspace(otherWS, interpretInProgressAsToDo).serializeToJSON();
         }
-    }
+    }*/
 
     public static <T extends Comparable<T>> JobWorkspace2Impl<T> fromFileOrElseCreateFromSeed(Class<T> type, Path path, T seed) {
         try {
@@ -131,24 +116,31 @@ public class JobWorkspace2Impl<T extends Comparable<T>> implements JobWorkspace_
 
     @Override
     public JobWorkspace_2<T> copy() {
-        NavigableSet<T> toDoItems;
-        Set<T> inProgressItems;
-        Set<T> doneItems;
-        Set<T> damagedItems;
-        JobStatistics jobStatistics;
+        final Queue<T> toDoItemsCopy;
+        final Set<T> inProgressItemsCopy;
+        final Set<T> doneItemsCopy;
+        final Set<T> damagedItemsCopy;
+        final JobStatistics jobStatisticsCopy;
 
         readWriteLock.readLock().lock();
         try {
-            toDoItems = new TreeSet<>(this.toDoItems);
-            inProgressItems = new HashSet<>(this.inProgressItems);
-            doneItems = new HashSet<>(this.doneItems);
-            damagedItems = new HashSet<>(this.damagedItems);
-            jobStatistics = new JobStatistics(this.jobStatistics);
+            toDoItemsCopy = new ArrayDeque<>(this.toDoItems);
+            inProgressItemsCopy = new LinkedHashSet<>(this.inProgressItems);
+            doneItemsCopy = new HashSet<>(this.doneItems);
+            damagedItemsCopy = new HashSet<>(this.damagedItems);
+            jobStatisticsCopy = new JobStatistics(this.jobStatistics);
         } finally {
             readWriteLock.readLock().unlock();
         }
 
-        return new JobWorkspace2Impl(toDoItems, inProgressItems, doneItems, damagedItems, jobStatistics);
+        final int allItemsCopySize = toDoItemsCopy.size() + inProgressItemsCopy.size() + doneItemsCopy.size() + damagedItemsCopy.size();
+        final Set<T> allItemsCopy = new HashSet<>(allItemsCopySize);
+        allItemsCopy.addAll(toDoItemsCopy);
+        allItemsCopy.addAll(inProgressItemsCopy);
+        allItemsCopy.addAll(doneItemsCopy);
+        allItemsCopy.addAll(damagedItemsCopy);
+
+        return new JobWorkspace2Impl<>(allItemsCopy, toDoItemsCopy, inProgressItemsCopy, doneItemsCopy, damagedItemsCopy, jobStatisticsCopy);
     }
 
     @Override
@@ -160,20 +152,16 @@ public class JobWorkspace2Impl<T extends Comparable<T>> implements JobWorkspace_
     public boolean add(T t) {
         readWriteLock.writeLock().lock();
         try {
-            final boolean addToAllResult = allItems.add(t);
-
-            if (addToAllResult) {
-                final boolean addToToDoResult = toDoItems.add(t);
-                this.jobStatistics.incrementTasksToDo();
-
-                if (!addToToDoResult) {
-                    throw new IllegalStateException("Item in allItems:" + true + " in toDoItems:" + addToToDoResult + " expected: true, true");
+            if (allItems.add(t)) {
+                if (toDoItems.add(t)) {
+                    this.jobStatistics.incrementTasksToDo();
+                    return true;
+                } else {
+                    throw new IllegalStateException("Item in allItems:" + true + " in toDoItems:" + false + " expected: true, true");
                 }
-
-                return true;
+            } else {
+                return false;
             }
-
-            return false;
         } finally {
             readWriteLock.writeLock().unlock();
         }
@@ -200,7 +188,8 @@ public class JobWorkspace2Impl<T extends Comparable<T>> implements JobWorkspace_
     public T moveToProcessingAndReturn() {
         readWriteLock.writeLock().lock();
         try {
-            final T poll = toDoItems.pollFirst();
+            final T poll = toDoItems.poll();
+//            final T poll = toDoItems.pollFirst();
             if (poll != null) {
                 inProgressItems.add(poll);
                 return poll;
@@ -210,6 +199,18 @@ public class JobWorkspace2Impl<T extends Comparable<T>> implements JobWorkspace_
         } finally {
             readWriteLock.writeLock().unlock();
         }
+//        readWriteLock.writeLock().lock();
+//        try {
+//            final T poll = toDoItems.pollFirst();
+//            if (poll != null) {
+//                inProgressItems.add(poll);
+//                return poll;
+//            } else {
+//                return null;
+//            }
+//        } finally {
+//            readWriteLock.writeLock().unlock();
+//        }
     }
 
     @Override
@@ -217,7 +218,9 @@ public class JobWorkspace2Impl<T extends Comparable<T>> implements JobWorkspace_
         readWriteLock.writeLock().lock();
         try {
             while (true) {
-                final T poll = toDoItems.pollFirst();
+                final T poll = toDoItems.poll();
+//                final T poll = toDoItems.pollFirst();
+
                 if (poll != null) {
                     inProgressItems.add(poll);
                     return poll;
