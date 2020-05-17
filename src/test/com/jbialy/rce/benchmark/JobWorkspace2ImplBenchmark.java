@@ -1,7 +1,7 @@
 package com.jbialy.rce.benchmark;
 
 import com.jbialy.rce.collections.workspace.JobWorkspace2Impl;
-import com.jbialy.rce.server.MockHtmlUtils;
+import com.jbialy.rce.utils.server.MockHtmlUtils;
 import org.jetbrains.annotations.NotNull;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
@@ -23,16 +23,16 @@ public class JobWorkspace2ImplBenchmark {
     public static int OPERATIONS_COUNT;
 
     //    @Param({"HashSet", "LinkedHashSet", "TreeSet"})
-    @Param({/*"HashSet",*/ "LinkedHashSet", "TreeSet"}) //TreeSet is definitely too slow (tested for OPERATIONS_COUNT=10000,100000)
+    @Param({"LinkedHashSet"}) //TreeSet is definitely too slow (tested for OPERATIONS_COUNT=10000,100000)
     public static String ALL_ITEMS_COLLECTION;
 
-    @Param({"LinkedList"/*, "ArrayDeque", "PriorityQueue"*/})
+    @Param({"LinkedList", "ArrayDeque", "PriorityQueue"})
     public static String TODO_COLLECTION;
 
-    @Param({/*"HashSet",*/ "LinkedHashSet"/*, "TreeSet"*/})
+    @Param({"HashSet", "LinkedHashSet", "TreeSet"})
     public static String IN_PROGRESS_COLLECTION;
 
-    @Param({/*"HashSet", */"LinkedHashSet"/*, "TreeSet"*/})
+    @Param({"HashSet", "LinkedHashSet", "TreeSet"})
     public static String DONE_COLLECTION;
 
     public static void main(String[] args) throws RunnerException {
@@ -98,23 +98,28 @@ public class JobWorkspace2ImplBenchmark {
             throw new IllegalArgumentException();
         }
     }
-/*
-    @Benchmark
-    public void JobWorkspace2Impl_add_crawlerEngineExtractedUris(Blackhole blackhole, Mock mockData) {
+
+    @NotNull
+    private static JobWorkspace2Impl<URI> createWorkspace() {
         final Set<URI> allItems = createAllItemsCollection(ALL_ITEMS_COLLECTION);
         final Queue<URI> todo = createTodoCollection(TODO_COLLECTION);
         final Set<URI> inProgress = createInProgressCollection(IN_PROGRESS_COLLECTION);
         final Set<URI> done = createDoneCollection(DONE_COLLECTION);
-        final Set<URI> damaged = createDamagedCollection(DAMAGED_COLLECTION);
+        final Set<URI> damaged = new HashSet<>();
 
-        JobWorkspace2Impl<URI> workspace = JobWorkspace2Impl.createCustom(allItems, todo, inProgress, done, damaged);
+        return JobWorkspace2Impl.createCustom(allItems, todo, inProgress, done, damaged);
+    }
+
+    @Benchmark
+    public void JobWorkspace2Impl_add_crawlerEngineExtractedUris(Blackhole blackhole, Mock mockData) {
+        JobWorkspace2Impl<URI> workspace = createWorkspace();
 
         for (int i = 0; i < OPERATIONS_COUNT; i++) {
             workspace.addAllToDo(mockData.getCrawlerExtractedUrisMock()[i]);
         }
 
         blackhole.consume(workspace);
-    }*/
+    }
 
     @Benchmark
     public void JobWorkspace2Impl_simulate_crawlerEngine(Blackhole blackhole, Mock mockData) {
@@ -129,17 +134,6 @@ public class JobWorkspace2ImplBenchmark {
         }
 
         blackhole.consume(workspace);
-    }
-
-    @NotNull
-    private static JobWorkspace2Impl<URI> createWorkspace() {
-        final Set<URI> allItems = createAllItemsCollection(ALL_ITEMS_COLLECTION);
-        final Queue<URI> todo = createTodoCollection(TODO_COLLECTION);
-        final Set<URI> inProgress = createInProgressCollection(IN_PROGRESS_COLLECTION);
-        final Set<URI> done = createDoneCollection(DONE_COLLECTION);
-        final Set<URI> damaged = new HashSet<>();
-
-        return JobWorkspace2Impl.createCustom(allItems, todo, inProgress, done, damaged);
     }
 
     @State(Scope.Thread)

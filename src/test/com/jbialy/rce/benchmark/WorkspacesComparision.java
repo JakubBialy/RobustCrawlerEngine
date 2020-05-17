@@ -2,7 +2,7 @@ package com.jbialy.rce.benchmark;
 
 import com.jbialy.rce.collections.workspace.CollectionWorkspace;
 import com.jbialy.rce.collections.workspace.JobWorkspace2Impl;
-import com.jbialy.rce.server.MockHtmlUtils;
+import com.jbialy.rce.utils.server.MockHtmlUtils;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.runner.Runner;

@@ -73,7 +73,7 @@ public class CrawlerEngine {
 
     private static <U, D> ThrowingRunnable<Throwable> makeRunnable(EngineState engineState, JobData<D, U> job) {
         return () -> {
-            //Job enviroment
+            //Job environment
             final EngineConfig config = job.getConfig();
             final JobWorkspace_2<U> jobWorkspace = job.workspaceSupplier().get();
             final SafetySwitch<DownloadResult<D, U>> requestSafetySwitch = new SafetySwitch<>(job.getSafetySwitchPredicate());

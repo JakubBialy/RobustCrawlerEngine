@@ -32,7 +32,6 @@ public class DenseSetBenchmark {
                 .warmupIterations(1)
                 .build();
         new Runner(opt).run();
-//        org.openjdk.jmh.Main.main(args);
     }
 
     @Benchmark

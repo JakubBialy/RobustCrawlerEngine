@@ -3,13 +3,14 @@ package com.jbialy.rce;
 import com.jbialy.rce.callbacks.BasicConsoleProgressCallback;
 import com.jbialy.rce.collections.workspace.JobWorkspace2Impl;
 import com.jbialy.rce.collections.workspace.JobWorkspace_2;
-import com.jbialy.rce.downloader.CoreDownloader;
 import com.jbialy.rce.downloader.HtmlDownloader;
 import com.jbialy.rce.downloader.JobBuilder;
-import com.jbialy.rce.downloader.MapDownloader;
-import com.jbialy.rce.downloader.core.*;
-import com.jbialy.rce.server.MockDownloaderModule;
-import com.jbialy.rce.server.SimpleHttpServer;
+import com.jbialy.rce.downloader.core.CrawlerEngine;
+import com.jbialy.rce.downloader.core.DownloadResult;
+import com.jbialy.rce.downloader.core.EngineConfig;
+import com.jbialy.rce.downloader.core.JobData;
+import com.jbialy.rce.utils.server.MockDownloaderModule;
+import com.jbialy.rce.utils.server.SimpleHttpServer;
 import com.jbialy.rce.utils.FileUtils;
 import com.jbialy.rce.utils.HtmlUtils;
 import com.jbialy.rce.utils.WorkspaceCallback;
@@ -25,7 +26,6 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
-import java.util.function.Function;
 
 import static com.jbialy.rce.TriggerHelper.after;
 import static com.jbialy.rce.TriggerHelper.afterItems;
@@ -109,7 +109,6 @@ public class HttpServerTests {
         Assertions.assertEquals(0L, apdOutput.length());
         Assertions.assertEquals(0L, checkpointFile.toFile().length());
 
-        final MockDownloaderModule mockDownloader = MockDownloaderModule.ofPagesCount(PAGES_COUNT);
         final MockCounterReceiver<DownloadResult<String, URI>> mockReceiver = new MockCounterReceiver<>();
         final URI seed = URI.create("http://localhost:8888/test?id=0");
         final WorkspaceCallback workspaceCallback = new WorkspaceCallback();

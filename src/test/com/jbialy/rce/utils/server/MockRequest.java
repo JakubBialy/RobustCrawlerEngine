@@ -1,4 +1,4 @@
-package com.jbialy.rce.server;
+package com.jbialy.rce.utils.server;
 
 import com.jbialy.rce.downloader.core.GenericHttpRequest;
 

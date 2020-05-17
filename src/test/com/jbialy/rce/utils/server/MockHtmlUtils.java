@@ -1,15 +1,13 @@
-package com.jbialy.rce.server;
+package com.jbialy.rce.utils.server;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class MockHtmlUtils {
     private static final Pattern END_LINE_DIGITS = Pattern.compile("\\d+$");
