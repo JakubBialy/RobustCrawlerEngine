@@ -4,9 +4,12 @@ import org.jetbrains.annotations.NotNull;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class MockHtmlUtils {
     private static final Pattern END_LINE_DIGITS = Pattern.compile("\\d+$");
@@ -32,7 +35,7 @@ public class MockHtmlUtils {
             result.add(baseUri.resolve(URI.create("/test?id=" + nextId)));
         }
 
-        result.add(URI.create("/test?id=" + currentPageId));
+        result.add(baseUri.resolve(URI.create("/test?id=" + currentPageId)));
 
         final long nextHrefsCount = Math.min(nextUris, maxPageId - currentPageId);
         for (long i = 0L; i < nextHrefsCount; i++) {
@@ -47,10 +50,11 @@ public class MockHtmlUtils {
     @NotNull
     public static String createHtmlMockPage(URI baseUri, long currentPageId, int hrefsToPreviousPages, long firstPageId, int hrefsToNextPages, long maxPageId) {
         final List<URI> uris = createURIs(baseUri, currentPageId, hrefsToPreviousPages, firstPageId, hrefsToNextPages, maxPageId);
+        Collections.shuffle(uris);
         String result = "";
 
         for (int i = 0; i < uris.size(); i++) {
-            result += "<a href=\"" + baseUri.resolve(URI.create("/test?id=" + currentPageId)).toString() + "\">LINK (" + currentPageId + ")<a/><br>";
+            result += "<a href=\"" + uris.get(i).toString() + "\">LINK (" + uris.get(i).toString() + ")<a/><br>";
         }
 
         return result;

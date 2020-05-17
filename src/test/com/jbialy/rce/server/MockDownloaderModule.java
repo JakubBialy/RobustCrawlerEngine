@@ -32,7 +32,7 @@ public class MockDownloaderModule implements Downloader<String, URI> {
     }
 
     public static MockDownloaderModule ofPagesCount(int pagesCount) {
-        return new MockDownloaderModule(256, 0, 256, pagesCount - 1);
+        return new MockDownloaderModule(128, 0, 128, pagesCount - 1);
     }
 
     public URI getFirstPage() {

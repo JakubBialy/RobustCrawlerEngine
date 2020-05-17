@@ -31,14 +31,13 @@ public class SimpleHttpServer {
                 final String query = uri.getQuery();
                 final Matcher matcher = END_LINE_DIGITS.matcher(query);
 
-                String response = "";
+                String response;
 
                 if (matcher.find()) {
                     long id = MockHtmlUtils.extractLongFromStringsEnd(query, -1L);
 
-                    if (id > firstValue && id < count) {
-
-                        response = MockHtmlUtils.createHtmlMockPage(BASE_URI, id, previousIdHrefsPerPage, firstValue, nextIdHrefsPerPage, count);
+                    if (id >= firstValue && id < count) {
+                        response = MockHtmlUtils.createHtmlMockPage(BASE_URI, id, previousIdHrefsPerPage, firstValue, nextIdHrefsPerPage, firstValue + count - 1);
 
                         exchange.sendResponseHeaders(200, response.length());
                         OutputStream os = exchange.getResponseBody();

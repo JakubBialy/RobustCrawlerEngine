@@ -21,11 +21,11 @@ public class EngineConfig {
         return maxRate;
     }
 
-    public int getMaxDownloadingThreads() {
+    public int getMaxDownloadingThreadsNum() {
         return maxDownloadingThreads;
     }
 
-    public int getMaxResponseProcessingThreads() {
+    public int getMaxProcessingThreadsNum() {
         return maxResponseHandlingThreads;
     }
 }

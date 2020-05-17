@@ -25,7 +25,7 @@ public class HttpClientHelper {
 //        return DownloaderUtils.toGenericHttpClient(builder.build());
 //    }
 
-    public static GenericHttpClient<byte[], URI> createDefaultHttpClient_V3_2() {
+    public static GenericHttpClient<byte[], URI> createDefaultHttpClient() {
         HttpClient.Builder builder = HttpClient.newBuilder()
                 .version(HttpClient.Version.HTTP_2)
                 .followRedirects(HttpClient.Redirect.ALWAYS)
@@ -45,12 +45,12 @@ public class HttpClientHelper {
 //        return DownloaderUtils.toGenericHttpClient(builder.build());
 //    }
 
-//    public static HttpClient generateDefaultHttpClient() {
-//        return HttpClient.newBuilder()
-//                .version(HttpClient.Version.HTTP_2)
-//                .followRedirects(HttpClient.Redirect.ALWAYS)
-//                .proxy(ProxySelector.getDefault())
-//                .connectTimeout(Duration.ofMinutes(5))
-//                .build();
-//    }
+    public static HttpClient generateDefaultHttpClient() {
+        return HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_2)
+                .followRedirects(HttpClient.Redirect.ALWAYS)
+                .proxy(ProxySelector.getDefault())
+                .connectTimeout(Duration.ofMinutes(5))
+                .build();
+    }
 }

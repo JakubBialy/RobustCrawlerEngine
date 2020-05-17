@@ -23,16 +23,16 @@ public class JobWorkspace2ImplBenchmark {
     public static int OPERATIONS_COUNT;
 
     //    @Param({"HashSet", "LinkedHashSet", "TreeSet"})
-    @Param({"HashSet", "LinkedHashSet"}) //TreeSet is definitely too slow (tested for OPERATIONS_COUNT=10000)
+    @Param({/*"HashSet",*/ "LinkedHashSet", "TreeSet"}) //TreeSet is definitely too slow (tested for OPERATIONS_COUNT=10000,100000)
     public static String ALL_ITEMS_COLLECTION;
 
-    @Param({"LinkedList", "ArrayDeque", "PriorityQueue"})
+    @Param({"LinkedList"/*, "ArrayDeque", "PriorityQueue"*/})
     public static String TODO_COLLECTION;
 
-    @Param({"HashSet", "LinkedHashSet", "TreeSet"})
+    @Param({/*"HashSet",*/ "LinkedHashSet"/*, "TreeSet"*/})
     public static String IN_PROGRESS_COLLECTION;
 
-    @Param({"HashSet", "LinkedHashSet", "TreeSet"})
+    @Param({/*"HashSet", */"LinkedHashSet"/*, "TreeSet"*/})
     public static String DONE_COLLECTION;
 
     public static void main(String[] args) throws RunnerException {
@@ -46,6 +46,7 @@ public class JobWorkspace2ImplBenchmark {
                 .measurementIterations(2)
                 .warmupTime(TimeValue.seconds(1))
                 .warmupIterations(1)
+                .jvmArgsAppend("-Xmx8g")
                 .build();
         new Runner(opt).run();
     }
@@ -159,8 +160,6 @@ public class JobWorkspace2ImplBenchmark {
             }
 
             shuffleArray(crawlerExtractedUrisMock);
-
-            System.out.print("(SETUP DONE) ");
         }
     }
 }

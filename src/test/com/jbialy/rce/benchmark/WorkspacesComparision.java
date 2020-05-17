@@ -17,7 +17,7 @@ import java.util.List;
 @State(Scope.Benchmark)
 public class WorkspacesComparision {
     //    @Param({"250000"})
-    @Param({"10000"})
+    @Param({"100000"})
     public static int OPERATIONS_COUNT;
 
     public static void main(String[] args) throws RunnerException {
@@ -27,9 +27,10 @@ public class WorkspacesComparision {
                 .mode(Mode.Throughput)
 //                .measurementIterations(10)
                 .measurementTime(TimeValue.seconds(1))
-                .measurementIterations(10)
+                .measurementIterations(5)
                 .warmupTime(TimeValue.seconds(1))
                 .warmupIterations(1)
+                .jvmArgsAppend("-Xmx8g")
                 .build();
         new Runner(opt).run();
     }
@@ -133,7 +134,6 @@ public class WorkspacesComparision {
         blackhole.consume(workspace);
     }
 
-
     @Benchmark
     public void CollectionWorkspace_add_and_get(Blackhole blackhole, Mock mockData) {
         CollectionWorkspace<URI> workspace = new CollectionWorkspace<>(List.of());
@@ -177,9 +177,9 @@ public class WorkspacesComparision {
                 mockUris[i] = URI.create("https://localhost/" + i);
             }
 
+            final URI baseUri = URI.create("https://localhost/");
             for (int i = 0; i < HREFS_COUNT; i++) {
-                final URI baseUri = URI.create("https://localhost/");
-                crawlerExtractedUrisMock[i] = MockHtmlUtils.createURIs(baseUri, i, 256, 0, 256, HREFS_COUNT);
+                crawlerExtractedUrisMock[i] = MockHtmlUtils.createURIs(baseUri, i, 128, 0, 128, HREFS_COUNT);
             }
         }
     }

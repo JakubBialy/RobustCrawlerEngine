@@ -10,7 +10,6 @@ import com.jbialy.rce.utils.sneakytry.ThrowableBiConsumer;
 
 import java.io.Closeable;
 import java.net.URI;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -53,7 +52,7 @@ public class JobBuilder<D, U extends Comparable<U>> {
     }
 
     public static JobBuilder<byte[], URI> simpleUriBuilder(JobWorkspace2Impl<URI> workspace) {
-        final Supplier<GenericHttpClient<byte[], URI>> httpClient = (Supplier<GenericHttpClient<byte[], URI>>) () -> HttpClientHelper.createDefaultHttpClient_V3_2();
+        final Supplier<GenericHttpClient<byte[], URI>> httpClient = (Supplier<GenericHttpClient<byte[], URI>>) () -> HttpClientHelper.createDefaultHttpClient();
         return new JobBuilder<byte[], URI>(() -> workspace)
 //                .setRequestMaker(GenericRequestHelper::uriGenericGetRequest)
 //                .setHttpClientSupplier(HttpClientHelper::createDefaultHttpClient)

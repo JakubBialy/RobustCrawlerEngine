@@ -28,7 +28,7 @@ public class CallbackTrigger<T> {
         }
     }
 
-    void forceTrigger(T callbackData) {
+    public void forceTrigger(T callbackData) {
         this.callback.onCall(callbackData);
     }
 }
