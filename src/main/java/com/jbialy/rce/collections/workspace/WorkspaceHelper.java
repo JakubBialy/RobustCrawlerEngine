@@ -1,6 +1,8 @@
 package com.jbialy.rce.collections.workspace;
 
 import com.jbialy.rce.collections.RangeIntUriSet;
+import com.jbialy.rce.collections.workspace.implementation.CollectionWorkspaceOld;
+import com.jbialy.rce.collections.workspace.implementation.GeneralPurposeJobWorkspace;
 import com.jbialy.rce.downloader.JobStatistics;
 import com.jbialy.rce.utils.NotImplementedError;
 
@@ -12,12 +14,12 @@ public class WorkspaceHelper {
     private WorkspaceHelper() {
     }
 
-    public static <T> JobWorkspace<T> synchronize(JobWorkspace<T> ws) {
-        return new JobWorkspace<T>() {
-            private final JobWorkspace<T> internalJobWorkspace = ws;
+    public static <T> JobWorkspaceOld<T> synchronize(JobWorkspaceOld<T> ws) {
+        return new JobWorkspaceOld<T>() {
+            private final JobWorkspaceOld<T> internalJobWorkspaceOld = ws;
 
             @Override
-            public synchronized JobWorkspace<T> copy() {
+            public synchronized JobWorkspaceOld<T> copy() {
                 return ws.copy();
             }
 
@@ -28,12 +30,12 @@ public class WorkspaceHelper {
 
             @Override
             public synchronized T getAndMarkAsInProgress() {
-                return internalJobWorkspace.getAndMarkAsInProgress();
+                return internalJobWorkspaceOld.getAndMarkAsInProgress();
             }
 
             @Override
             public synchronized boolean isToDoEmpty() {
-                return internalJobWorkspace.isToDoEmpty();
+                return internalJobWorkspaceOld.isToDoEmpty();
             }
 
             @Override
@@ -43,22 +45,22 @@ public class WorkspaceHelper {
 
             @Override
             public synchronized boolean isInProgressEmpty() {
-                return internalJobWorkspace.isInProgressEmpty();
+                return internalJobWorkspaceOld.isInProgressEmpty();
             }
 
             @Override
             public synchronized boolean addToDo(T t) {
-                return internalJobWorkspace.addToDo(t);
+                return internalJobWorkspaceOld.addToDo(t);
             }
 
             @Override
             public synchronized boolean addAllToDo(Collection<T> collection) {
-                return internalJobWorkspace.addAllToDo(collection);
+                return internalJobWorkspaceOld.addAllToDo(collection);
             }
 
             @Override
             public synchronized boolean markAsDone(T t) {
-                return internalJobWorkspace.markAsDone(t);
+                return internalJobWorkspaceOld.markAsDone(t);
             }
 
             @Override
@@ -78,7 +80,7 @@ public class WorkspaceHelper {
 
             @Override
             public synchronized Collection<T> getAllItems() {
-                return internalJobWorkspace.getAllItems();
+                return internalJobWorkspaceOld.getAllItems();
             }
 
             @Override
@@ -98,23 +100,23 @@ public class WorkspaceHelper {
         };
     }
 
-    public static <T extends Comparable<T>> JobWorkspace<T> fromCollection(Collection<T> collection) {
-        return new CollectionWorkspace<T>(collection);
+    public static <T extends Comparable<T>> JobWorkspaceOld<T> fromCollection(Collection<T> collection) {
+        return new CollectionWorkspaceOld<T>(collection);
     }
 
-    public static <U extends Comparable<U>> JobWorkspace<U> fromCollectionAsSet(Collection<U> collection) {
-        return CollectionWorkspace.fromToDoCollection(collection);
+    public static <U extends Comparable<U>> JobWorkspaceOld<U> fromCollectionAsSet(Collection<U> collection) {
+        return CollectionWorkspaceOld.fromToDoCollection(collection);
     }
 
-    public static <U extends Comparable<U>> JobWorkspace_2<U> fromCollectionAsSet_2(Collection<U> collection) {
-        return JobWorkspace2Impl.fromToDoCollection(collection);
+    public static <U extends Comparable<U>> JobWorkspace<U> fromCollectionAsSet_2(Collection<U> collection) {
+        return GeneralPurposeJobWorkspace.fromToDoCollection(collection);
     }
 
     public static class MemoryEfficient {
         private MemoryEfficient() {
         }
 
-        public static Supplier<JobWorkspace<URI>> fromRangeIntUriSet(RangeIntUriSet rangeIntUriSet) {
+        public static Supplier<JobWorkspaceOld<URI>> fromRangeIntUriSet(RangeIntUriSet rangeIntUriSet) {
             final String leftPart = rangeIntUriSet.getLeftPart();
             final String rightPart = rangeIntUriSet.getRightPart();
 
@@ -122,18 +124,18 @@ public class WorkspaceHelper {
             return rangeIntUriSet(rangeIntUriSet);
         }
 
-        public static Supplier<JobWorkspace<URI>> rangeIntUriSet(/*String leftPart, String rightPart,*/ RangeIntUriSet uriSet) {
+        public static Supplier<JobWorkspaceOld<URI>> rangeIntUriSet(/*String leftPart, String rightPart,*/ RangeIntUriSet uriSet) {
             return new Supplier<>() {
                 @Override
-                public JobWorkspace<URI> get() {
-                    return new JobWorkspace<>() {
+                public JobWorkspaceOld<URI> get() {
+                    return new JobWorkspaceOld<>() {
                         private final RangeIntUriSet todo = new RangeIntUriSet(uriSet);
                         private final RangeIntUriSet inProgress = RangeIntUriSet.empty(todo.getLeftPart(), todo.getRightPart());
                         private int doneCounter = 0;
 //                        private AtomicInteger doneCounter = new AtomicInteger(0);
 
                         @Override
-                        public JobWorkspace<URI> copy() {
+                        public JobWorkspaceOld<URI> copy() {
                             throw new NotImplementedError();
                         }
 

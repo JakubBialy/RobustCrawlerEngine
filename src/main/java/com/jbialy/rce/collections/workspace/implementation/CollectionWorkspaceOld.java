@@ -1,7 +1,8 @@
-package com.jbialy.rce.collections.workspace;
+package com.jbialy.rce.collections.workspace.implementation;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.jbialy.rce.collections.workspace.JobWorkspaceOld;
 import com.jbialy.rce.downloader.JobStatistics;
 import com.jbialy.rce.utils.NotImplementedError;
 
@@ -16,13 +17,13 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class CollectionWorkspace<T> implements JobWorkspace<T> {
+public class CollectionWorkspaceOld<T> implements JobWorkspaceOld<T> {
     private final HashMap<T, Long> map;
     private final transient Lock lock;
     private final transient Condition changeCondition;
     private final JobStatistics jobStatistics;
 
-    public CollectionWorkspace(Collection<T> collection) {
+    public CollectionWorkspaceOld(Collection<T> collection) {
         this.lock = new ReentrantLock();
         this.changeCondition = lock.newCondition();
 
@@ -39,20 +40,20 @@ public class CollectionWorkspace<T> implements JobWorkspace<T> {
         jobStatistics = new JobStatistics(0L, doneCount, toDoCount);
     }
 
-    private CollectionWorkspace(HashMap<T, Long> map) {
+    private CollectionWorkspaceOld(HashMap<T, Long> map) {
         this(map, new JobStatistics());
     }
 
-    private CollectionWorkspace(HashMap<T, Long> map, JobStatistics jobStatisticsCopy) {
+    private CollectionWorkspaceOld(HashMap<T, Long> map, JobStatistics jobStatisticsCopy) {
         this.lock = new ReentrantLock();
         this.changeCondition = lock.newCondition();
         this.map = map;
         this.jobStatistics = jobStatisticsCopy;
     }
 
-    public static <T> CollectionWorkspace<T> fromJobWorkspace(JobWorkspace<T> otherWS, boolean interpretInProgressAsToDo) {
+    public static <T> CollectionWorkspaceOld<T> fromJobWorkspace(JobWorkspaceOld<T> otherWS, boolean interpretInProgressAsToDo) {
         if (interpretInProgressAsToDo) {
-            if (otherWS instanceof CollectionWorkspace<T> collectionWS) {
+            if (otherWS instanceof CollectionWorkspaceOld<T> collectionWS) {
                 final HashMap<T, Long> otherCollectionWSMapCopy = new HashMap<>((collectionWS).map);
 
                 otherCollectionWSMapCopy
@@ -69,42 +70,42 @@ public class CollectionWorkspace<T> implements JobWorkspace<T> {
 //                final JobStatistics statistics = new JobStatistics(otherWS.getJobStatistics().getTasksSentToReceiver(), doneCount, inProgressCount, toDoCount);
                 final JobStatistics statistics = new JobStatistics(otherWS.getJobStatistics().getTasksSentToReceiver(), doneCount, toDoCount);
 
-                return new CollectionWorkspace<T>(otherCollectionWSMapCopy, statistics);
+                return new CollectionWorkspaceOld<T>(otherCollectionWSMapCopy, statistics);
             } else {
                 throw new NotImplementedError();
             }
         } else {
-            if (otherWS instanceof CollectionWorkspace<T> collectionWS) {
-                return new CollectionWorkspace<T>(new HashMap<>((collectionWS).map));
+            if (otherWS instanceof CollectionWorkspaceOld<T> collectionWS) {
+                return new CollectionWorkspaceOld<T>(new HashMap<>((collectionWS).map));
             } else {
                 throw new NotImplementedError();
             }
         }
     }
 
-    public static <T> String toJSON(JobWorkspace<T> otherWS, boolean interpretInProgressAsToDo) {
+    public static <T> String toJSON(JobWorkspaceOld<T> otherWS, boolean interpretInProgressAsToDo) {
         return fromJobWorkspace(otherWS, interpretInProgressAsToDo).serializeToJSON();
     }
 
-    public static <T> CollectionWorkspace<T> fromToDoCollection(Collection<T> todoCollection) {
-        return new CollectionWorkspace<>(todoCollection);
+    public static <T> CollectionWorkspaceOld<T> fromToDoCollection(Collection<T> todoCollection) {
+        return new CollectionWorkspaceOld<>(todoCollection);
     }
 
-    public static <T> CollectionWorkspace<T> deserializeFromJSON(String json, Class<T> type) {
-        return new GsonBuilder().create().fromJson(json, TypeToken.getParameterized(CollectionWorkspace.class, type).getType());
+    public static <T> CollectionWorkspaceOld<T> deserializeFromJSON(String json, Class<T> type) {
+        return new GsonBuilder().create().fromJson(json, TypeToken.getParameterized(CollectionWorkspaceOld.class, type).getType());
     }
 
-    public static <T> CollectionWorkspace<T> fromFileOrElseGet(Class<T> type, Path path, Supplier<CollectionWorkspace<T>> supplier) {
+    public static <T> CollectionWorkspaceOld<T> fromFileOrElseGet(Class<T> type, Path path, Supplier<CollectionWorkspaceOld<T>> supplier) {
         try {
-            return CollectionWorkspace.deserializeFromJSON(Files.readString(path, StandardCharsets.UTF_8), type);
+            return CollectionWorkspaceOld.deserializeFromJSON(Files.readString(path, StandardCharsets.UTF_8), type);
         } catch (IOException e) {
             return supplier.get();
         }
     }
 
-    public static <T> CollectionWorkspace<T> fromFileOrElseCreateFromSeed(Class<T> type, Path path, T seed) {
+    public static <T> CollectionWorkspaceOld<T> fromFileOrElseCreateFromSeed(Class<T> type, Path path, T seed) {
         try {
-            final CollectionWorkspace<T> workspace = CollectionWorkspace.deserializeFromJSON(Files.readString(path, StandardCharsets.UTF_8), type);
+            final CollectionWorkspaceOld<T> workspace = CollectionWorkspaceOld.deserializeFromJSON(Files.readString(path, StandardCharsets.UTF_8), type);
 
             if (workspace == null) {
                 return fromToDoCollection(Collections.singletonList(seed));
@@ -126,7 +127,7 @@ public class CollectionWorkspace<T> implements JobWorkspace<T> {
     }
 
     @Override
-    public JobWorkspace<T> copy() {
+    public JobWorkspaceOld<T> copy() {
         HashMap<T, Long> mapCopy;
         JobStatistics jobStatisticsCopy;
         lock.lock();
@@ -137,7 +138,7 @@ public class CollectionWorkspace<T> implements JobWorkspace<T> {
             lock.unlock();
         }
 
-        return new CollectionWorkspace<>(mapCopy, jobStatisticsCopy);
+        return new CollectionWorkspaceOld<>(mapCopy, jobStatisticsCopy);
     }
 
     @Override

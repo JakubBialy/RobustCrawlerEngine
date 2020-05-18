@@ -2,7 +2,7 @@ package com.jbialy.rce.downloader.core;
 
 import com.jbialy.rce.ThrowingRunnable;
 import com.jbialy.rce.callbacks.CallbackTrigger;
-import com.jbialy.rce.collections.workspace.JobWorkspace_2;
+import com.jbialy.rce.collections.workspace.JobWorkspace;
 import com.jbialy.rce.downloader.JobStatistics;
 import com.jbialy.rce.downloader.SafetySwitch;
 import io.reactivex.rxjava3.annotations.NonNull;
@@ -37,7 +37,7 @@ public class CrawlerEngine {
     }
 
     @NonNull
-    private static <E> Flowable<E> workspaceToFlowable(long desiredRatePerSecond, SafetySwitch<?> requestSafetySwitch, EngineState engineState, JobWorkspace_2<E> workspace) {
+    private static <E> Flowable<E> workspaceToFlowable(long desiredRatePerSecond, SafetySwitch<?> requestSafetySwitch, EngineState engineState, JobWorkspace<E> workspace) {
         return Flowable.generate(FlowableGeneratorState::new, (generatorState, emitter) -> {
             if (!requestSafetySwitch.isActivated() && engineState.isRunning()) {
                 final E item = workspace.moveToProcessingAndReturnWaitIfInProgressIsNotEmpty();
@@ -75,7 +75,7 @@ public class CrawlerEngine {
         return () -> {
             //Job environment
             final EngineConfig config = job.getConfig();
-            final JobWorkspace_2<U> jobWorkspace = job.workspaceSupplier().get();
+            final JobWorkspace<U> jobWorkspace = job.workspaceSupplier().get();
             final SafetySwitch<DownloadResult<D, U>> requestSafetySwitch = new SafetySwitch<>(job.getSafetySwitchPredicate());
             final Downloader<D, U> downloader = job.getDownloadModule();
 
@@ -85,7 +85,7 @@ public class CrawlerEngine {
 
             //Listeners
             final Runnable onCompleteListener = job.getOnCompleteListener();
-            final CallbackTrigger<JobWorkspace_2<U>> checkpointCallbackTrigger = job.getCheckpointCallbackTrigger();
+            final CallbackTrigger<JobWorkspace<U>> checkpointCallbackTrigger = job.getCheckpointCallbackTrigger();
             final CallbackTrigger<JobStatistics> progressCallbackTrigger = job.getProgressUpdatesCallbackTrigger();
 
             try (final Receiver<?, DownloadResult<D, U>> responseReceiver = job.responsesHandler()) {

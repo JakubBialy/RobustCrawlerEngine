@@ -22,7 +22,6 @@ public class RxZip {
         return toZip(zipOutput, Deflater.DEFAULT_COMPRESSION);
     }
 
-
     public static ResourceSubscriber<ZipEntryData> toZip(Path zipOutput, int compressionLevel) {
         return new ResourceSubscriber<ZipEntryData>() {
             private ZipOutputStream zos;

@@ -1,6 +1,5 @@
 package com.jbialy.rce.collections.workspace;
 
-
 import com.jbialy.rce.downloader.JobStatistics;
 
 import java.util.Collection;
@@ -11,31 +10,53 @@ public interface JobWorkspace<T> {
 
     JobStatistics getJobStatistics();
 
-    T getAndMarkAsInProgress();
+    // add new element (to do)
+    boolean add(T t);
 
-    boolean isToDoEmpty();
-
-    int todoCount();
-
-    boolean isInProgressEmpty();
-
-    boolean addToDo(T t);
+//    boolean add(T... t);
 
     boolean addAllToDo(Collection<T> collection);
 
-    boolean markAsDone(T t);
+    // move to processing
+    T moveToProcessingAndReturn();
 
-    boolean markAsDone(T t1, T t2);
+    T moveToProcessingAndReturnWaitIfInProgressIsNotEmpty();
+
+    // move to done
+    boolean moveToDone(T t);
+
+    boolean moveToDone(T t1, T t2);
+
+//    boolean moveToDone(T... t);
+
+    // move to damaged
+    boolean moveToDamaged(T t);
+
+//    boolean moveToDamaged(T t1, T t2);
+
+//    boolean moveToDamaged(T... t);
+
+    ////////////////////////////
+    int allItemsCount();
+
+    int todoCount();
+
+    int inProgressCount();
 
     int doneCount();
 
-    int toDoAndInProgressAndDoneCount();
+    int damagedCount();
 
-    Collection<T> getAllItems();
+    boolean isToDoEmpty();
 
+    boolean isToDoAndInProgressEmpty();
+
+    ///////////////////////////////
     Collection<T> getToDoItems();
+
+    Collection<T> getInProgressItems();
 
     Collection<T> getDoneItems();
 
-    Collection<T> getExceptDone(Collection<T> col);
+    Collection<T> getDamagedItems();
 }

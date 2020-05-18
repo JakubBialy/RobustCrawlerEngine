@@ -1,8 +1,8 @@
 package com.jbialy.rce;
 
 import com.jbialy.rce.callbacks.BasicConsoleProgressCallback;
-import com.jbialy.rce.collections.workspace.JobWorkspace2Impl;
-import com.jbialy.rce.collections.workspace.JobWorkspace_2;
+import com.jbialy.rce.collections.workspace.implementation.GeneralPurposeJobWorkspace;
+import com.jbialy.rce.collections.workspace.JobWorkspace;
 import com.jbialy.rce.downloader.HtmlDownloader;
 import com.jbialy.rce.downloader.JobBuilder;
 import com.jbialy.rce.downloader.core.CrawlerEngine;
@@ -64,7 +64,7 @@ public class HttpServerTests {
         final WorkspaceCallback workspaceCallback = new WorkspaceCallback();
 
         JobData<String, URI> job = new JobBuilder<String, URI>
-                (() -> JobWorkspace2Impl.fromFileOrElseCreateFromSeed(URI.class, checkpointFile, seed))
+                (() -> GeneralPurposeJobWorkspace.fromFileOrElseCreateFromSeed(URI.class, checkpointFile, seed))
                 .setConfig(new EngineConfig(2, 2, Long.MAX_VALUE)) //Optional
                 .setDownloader(mockDownloader) //Optional
                 .setUriExtractor(HtmlUtils::simpleExtractUris) // Optional
@@ -82,7 +82,7 @@ public class HttpServerTests {
         engineV3.start();
         engineV3.awaitForFinish();
 
-        final JobWorkspace_2<URI> workspace = workspaceCallback.getWorkspace();
+        final JobWorkspace<URI> workspace = workspaceCallback.getWorkspace();
 
         Assertions.assertEquals(PAGES_COUNT, mockReceiver.getCount());
         Assertions.assertEquals(PAGES_COUNT, workspace.allItemsCount());
@@ -114,7 +114,7 @@ public class HttpServerTests {
         final WorkspaceCallback workspaceCallback = new WorkspaceCallback();
 
         JobData<String, URI> job = new JobBuilder<String, URI>
-                (() -> JobWorkspace2Impl.fromFileOrElseCreateFromSeed(URI.class, checkpointFile, seed))
+                (() -> GeneralPurposeJobWorkspace.fromFileOrElseCreateFromSeed(URI.class, checkpointFile, seed))
                 .setConfig(new EngineConfig(8, 2, Long.MAX_VALUE)) //Optional
                 .setDownloader(new HtmlDownloader()) //Optional
                 .setUriExtractor(HtmlUtils::simpleExtractUris) // Optional
@@ -134,7 +134,7 @@ public class HttpServerTests {
 
         simpleHttpServer.stop();
 
-        final JobWorkspace_2<URI> workspace = workspaceCallback.getWorkspace();
+        final JobWorkspace<URI> workspace = workspaceCallback.getWorkspace();
 
         Assertions.assertEquals(PAGES_COUNT, mockReceiver.getCount());
         Assertions.assertEquals(PAGES_COUNT, workspace.allItemsCount());

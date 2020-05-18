@@ -4,13 +4,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.net.URI;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.SortedSet;
+import java.util.*;
 import java.util.stream.Collectors;
 
-public class RangeIntUriSet implements SortedSet<URI> {
+public class RangeIntUriSet implements SortedSet<URI>, Queue<URI> {
     private final DenseIntSet idsSet;
     private final String leftPart;
     private final String rightPart;
@@ -117,6 +114,43 @@ public class RangeIntUriSet implements SortedSet<URI> {
     @Override
     public boolean add(URI uri) {
         return this.idsSet.add(extractIdFromURI(uri));
+    }
+
+    @Override
+    public boolean offer(URI uri) {
+        return this.idsSet.offer(extractIdFromURI(uri));
+    }
+
+    @Override
+    public URI remove() {
+        return createUriFromId(this.idsSet.remove());
+    }
+
+    @Override
+    public URI poll() {
+        final Integer poll = this.idsSet.poll();
+
+        if (poll != null) {
+            return createUriFromId(poll);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public URI element() {
+        return createUriFromId(this.idsSet.element());
+    }
+
+    @Override
+    public URI peek() {
+        final Integer peek = this.idsSet.peek();
+
+        if (peek != null) {
+            return createUriFromId(peek);
+        } else {
+            return null;
+        }
     }
 
     @Override

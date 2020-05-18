@@ -1,20 +1,20 @@
 package com.jbialy.rce.utils;
 
 import com.jbialy.rce.callbacks.DataCallback;
-import com.jbialy.rce.collections.workspace.JobWorkspace_2;
+import com.jbialy.rce.collections.workspace.JobWorkspace;
 
 import java.net.URI;
 
-public class WorkspaceCallback implements DataCallback<JobWorkspace_2<URI>> {
+public class WorkspaceCallback implements DataCallback<JobWorkspace<URI>> {
 
-    private JobWorkspace_2<URI> workspace = null;
+    private JobWorkspace<URI> workspace = null;
 
-    public JobWorkspace_2<URI> getWorkspace() {
+    public JobWorkspace<URI> getWorkspace() {
         return workspace;
     }
 
     @Override
-    public synchronized void onCall(JobWorkspace_2<URI> incpomingWorkspace) {
+    public synchronized void onCall(JobWorkspace<URI> incpomingWorkspace) {
         this.workspace = incpomingWorkspace;
     }
 }

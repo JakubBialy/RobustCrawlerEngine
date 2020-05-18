@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-public class DenseIntSet implements SortedSet<Integer> {
+public class DenseIntSet implements SortedSet<Integer>, Queue<Integer> {
     private final UniqueIntSequence uniqueIntSequence;
 
     public DenseIntSet() {
@@ -95,6 +95,39 @@ public class DenseIntSet implements SortedSet<Integer> {
     @Override
     public boolean add(Integer integer) {
         return this.uniqueIntSequence.add(integer);
+    }
+
+    @Override
+    public boolean offer(Integer integer) {
+        return add(integer);
+    }
+
+    @Override
+    public Integer remove() {
+        if (isEmpty()) {
+            throw new NoSuchElementException();
+        } else {
+            return poll();
+        }
+    }
+
+    @Override
+    public Integer poll() {
+        return this.uniqueIntSequence.pollLast();
+    }
+
+    @Override
+    public Integer element() {
+        if (isEmpty()) {
+            throw new NoSuchElementException();
+        } else {
+            return peek();
+        }
+    }
+
+    @Override
+    public Integer peek() {
+        return this.uniqueIntSequence.peekLast();
     }
 
     @Override

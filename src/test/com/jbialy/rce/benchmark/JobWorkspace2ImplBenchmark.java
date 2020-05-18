@@ -1,6 +1,6 @@
 package com.jbialy.rce.benchmark;
 
-import com.jbialy.rce.collections.workspace.JobWorkspace2Impl;
+import com.jbialy.rce.collections.workspace.implementation.GeneralPurposeJobWorkspace;
 import com.jbialy.rce.utils.server.MockHtmlUtils;
 import org.jetbrains.annotations.NotNull;
 import org.openjdk.jmh.annotations.*;
@@ -100,19 +100,19 @@ public class JobWorkspace2ImplBenchmark {
     }
 
     @NotNull
-    private static JobWorkspace2Impl<URI> createWorkspace() {
+    private static GeneralPurposeJobWorkspace<URI> createWorkspace() {
         final Set<URI> allItems = createAllItemsCollection(ALL_ITEMS_COLLECTION);
         final Queue<URI> todo = createTodoCollection(TODO_COLLECTION);
         final Set<URI> inProgress = createInProgressCollection(IN_PROGRESS_COLLECTION);
         final Set<URI> done = createDoneCollection(DONE_COLLECTION);
         final Set<URI> damaged = new HashSet<>();
 
-        return JobWorkspace2Impl.createCustom(allItems, todo, inProgress, done, damaged);
+        return GeneralPurposeJobWorkspace.createCustom(allItems, todo, inProgress, done, damaged);
     }
 
     @Benchmark
     public void JobWorkspace2Impl_add_crawlerEngineExtractedUris(Blackhole blackhole, Mock mockData) {
-        JobWorkspace2Impl<URI> workspace = createWorkspace();
+        GeneralPurposeJobWorkspace<URI> workspace = createWorkspace();
 
         for (int i = 0; i < OPERATIONS_COUNT; i++) {
             workspace.addAllToDo(mockData.getCrawlerExtractedUrisMock()[i]);
@@ -123,7 +123,7 @@ public class JobWorkspace2ImplBenchmark {
 
     @Benchmark
     public void JobWorkspace2Impl_simulate_crawlerEngine(Blackhole blackhole, Mock mockData) {
-        JobWorkspace2Impl<URI> workspace = createWorkspace();
+        GeneralPurposeJobWorkspace<URI> workspace = createWorkspace();
 
         workspace.add(mockData.getCrawlerExtractedUrisMock()[0].get(0)); //add seed
 

@@ -45,6 +45,16 @@ public class MockHtmlUtils {
         return result;
     }
 
+    public static List<URI> createURIsRange(URI baseUri, long firstPageId, long maxPageId) {
+        ArrayList<URI> result = new ArrayList<>((int) (maxPageId - firstPageId));
+
+        for (long i = firstPageId; i < maxPageId; i++) {
+            result.add(baseUri.resolve(URI.create("/test?id=" + i)));
+        }
+
+        return result;
+    }
+
     @NotNull
     public static String createHtmlMockPage(URI baseUri, long currentPageId, int hrefsToPreviousPages, long firstPageId, int hrefsToNextPages, long maxPageId) {
         final List<URI> uris = createURIs(baseUri, currentPageId, hrefsToPreviousPages, firstPageId, hrefsToNextPages, maxPageId);

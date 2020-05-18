@@ -1,7 +1,8 @@
 package com.jbialy.rce.benchmark;
 
-import com.jbialy.rce.collections.workspace.CollectionWorkspace;
-import com.jbialy.rce.collections.workspace.JobWorkspace2Impl;
+import com.jbialy.rce.collections.workspace.JobWorkspace;
+import com.jbialy.rce.collections.workspace.implementation.GeneralPurposeJobWorkspace;
+import com.jbialy.rce.collections.workspace.implementation.PackedUriIntRangeJobWorkspace;
 import com.jbialy.rce.utils.server.MockHtmlUtils;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
@@ -12,12 +13,16 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.runner.options.TimeValue;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
+
+import static com.jbialy.rce.utils.Utils.shuffleArray;
 
 @State(Scope.Benchmark)
 public class WorkspacesComparision {
-    //    @Param({"250000"})
-    @Param({"100000"})
+    @Param({
+            "10000", "50000", "250000", "1000000"
+    })
     public static int OPERATIONS_COUNT;
 
     public static void main(String[] args) throws RunnerException {
@@ -29,15 +34,26 @@ public class WorkspacesComparision {
                 .measurementTime(TimeValue.seconds(1))
                 .measurementIterations(5)
                 .warmupTime(TimeValue.seconds(1))
-                .warmupIterations(1)
+                .warmupIterations(2)
                 .jvmArgsAppend("-Xmx8g")
                 .build();
         new Runner(opt).run();
     }
 
     @Benchmark
-    public void JobWorkspace2Impl_add_crawlerEngineExtractedUris(Blackhole blackhole, Mock mockData) {
-        JobWorkspace2Impl<URI> workspace = JobWorkspace2Impl.createEmpty();
+    public static void PackedUriIntRangeJobWorkspace_add(Blackhole blackhole, Mock mockData) {
+        JobWorkspace<URI> workspace = new PackedUriIntRangeJobWorkspace("https://localhost/test?id=", "");
+
+        for (int i = 0; i < OPERATIONS_COUNT; i++) {
+            workspace.add(mockData.mockUris[i]);
+        }
+
+        blackhole.consume(workspace);
+    }
+
+    @Benchmark
+    public void GeneralPurposeJobWorkspace_add_crawlerEngineExtractedUris(Blackhole blackhole, Mock mockData) {
+        JobWorkspace<URI> workspace = GeneralPurposeJobWorkspace.createEmpty();
 
         for (int i = 0; i < OPERATIONS_COUNT; i++) {
             workspace.addAllToDo(mockData.getCrawlerExtractedUrisMock()[i]);
@@ -47,8 +63,8 @@ public class WorkspacesComparision {
     }
 
     @Benchmark
-    public void JobWorkspace2Impl_simulate_crawlerEngine(Blackhole blackhole, Mock mockData) {
-        JobWorkspace2Impl<URI> workspace = JobWorkspace2Impl.createEmpty();
+    public void GeneralPurposeJobWorkspace_simulate_crawlerEngine(Blackhole blackhole, Mock mockData) {
+        JobWorkspace<URI> workspace = GeneralPurposeJobWorkspace.createEmpty();
         workspace.add(mockData.getCrawlerExtractedUrisMock()[0].get(0)); //add seed
 
         for (int i = 0; i < OPERATIONS_COUNT; i++) {
@@ -61,8 +77,8 @@ public class WorkspacesComparision {
     }
 
     @Benchmark
-    public void JobWorkspace2Impl_add_and_get(Blackhole blackhole, Mock mockData) {
-        JobWorkspace2Impl<URI> workspace = JobWorkspace2Impl.createEmpty();
+    public void GeneralPurposeJobWorkspace_add_and_get(Blackhole blackhole, Mock mockData) {
+        JobWorkspace<URI> workspace = GeneralPurposeJobWorkspace.createEmpty();
 
         for (int i = 0; i < OPERATIONS_COUNT; i++) {
             workspace.add(mockData.mockUris[i]);
@@ -76,8 +92,8 @@ public class WorkspacesComparision {
     }
 
     @Benchmark
-    public void JobWorkspace2Impl_add(Blackhole blackhole, Mock mockData) {
-        JobWorkspace2Impl<URI> workspace = JobWorkspace2Impl.createEmpty();
+    public void GeneralPurposeJobWorkspace_add(Blackhole blackhole, Mock mockData) {
+        JobWorkspace<URI> workspace = GeneralPurposeJobWorkspace.createEmpty();
 
         for (int i = 0; i < OPERATIONS_COUNT; i++) {
             workspace.add(mockData.mockUris[i]);
@@ -87,8 +103,8 @@ public class WorkspacesComparision {
     }
 
     @Benchmark
-    public void JobWorkspace2Impl_add_twice(Blackhole blackhole, Mock mockData) {
-        JobWorkspace2Impl<URI> workspace = JobWorkspace2Impl.createEmpty();
+    public void GeneralPurposeJobWorkspace_add_twice(Blackhole blackhole, Mock mockData) {
+        JobWorkspace<URI> workspace = GeneralPurposeJobWorkspace.createEmpty();
 
         for (int i = 0; i < OPERATIONS_COUNT; i++) {
             workspace.add(mockData.mockUris[i]);
@@ -99,22 +115,8 @@ public class WorkspacesComparision {
     }
 
     @Benchmark
-    public void CollectionWorkspace_simulate_crawlerEngine(Blackhole blackhole, Mock mockData) {
-        CollectionWorkspace<URI> workspace = new CollectionWorkspace<>(List.of());
-        workspace.addToDo(mockData.getCrawlerExtractedUrisMock()[0].get(0)); //add seed
-
-        for (int i = 0; i < OPERATIONS_COUNT; i++) {
-            final URI currentUri = workspace.getAndMarkAsInProgress();
-            workspace.addAllToDo(mockData.getCrawlerExtractedUrisMock()[i]);
-            workspace.markAsDone(currentUri);
-        }
-
-        blackhole.consume(workspace);
-    }
-
-    @Benchmark
-    public void CollectionWorkspace_add_crawlerEngineExtractedUris(Blackhole blackhole, Mock mockData) {
-        CollectionWorkspace<URI> workspace = new CollectionWorkspace<>(List.of());
+    public void PackedUriIntRangeJobWorkspace_add_crawlerEngineExtractedUris(Blackhole blackhole, Mock mockData) {
+        JobWorkspace<URI> workspace = new PackedUriIntRangeJobWorkspace("https://localhost/test?id=", "");
 
         for (int i = 0; i < OPERATIONS_COUNT; i++) {
             workspace.addAllToDo(mockData.getCrawlerExtractedUrisMock()[i]);
@@ -124,43 +126,111 @@ public class WorkspacesComparision {
     }
 
     @Benchmark
-    public void CollectionWorkspace_add(Blackhole blackhole, Mock mockData) {
-        CollectionWorkspace<URI> workspace = new CollectionWorkspace<>(List.of());
+    public void PackedUriIntRangeJobWorkspace_simulate_crawlerEngine(Blackhole blackhole, Mock mockData) {
+        JobWorkspace<URI> workspace = new PackedUriIntRangeJobWorkspace("https://localhost/test?id=", "");
+        workspace.add(mockData.getCrawlerExtractedUrisMock()[0].get(0)); //add seed
 
         for (int i = 0; i < OPERATIONS_COUNT; i++) {
-            workspace.addToDo(mockData.mockUris[i]);
+            final URI currentUri = workspace.moveToProcessingAndReturnWaitIfInProgressIsNotEmpty();
+            workspace.addAllToDo(mockData.getCrawlerExtractedUrisMock()[i]);
+            workspace.moveToDone(currentUri);
+        }
+
+        blackhole.consume(workspace);
+    }
+
+
+    @Benchmark
+    public void PackedUriIntRangeJobWorkspace_add_and_get(Blackhole blackhole, Mock mockData) {
+        JobWorkspace<URI> workspace = new PackedUriIntRangeJobWorkspace("https://localhost/test?id=", "");
+
+        for (int i = 0; i < OPERATIONS_COUNT; i++) {
+            workspace.add(mockData.mockUris[i]);
+        }
+
+        for (int i = 0; i < OPERATIONS_COUNT; i++) {
+            workspace.moveToProcessingAndReturn();
         }
 
         blackhole.consume(workspace);
     }
 
     @Benchmark
-    public void CollectionWorkspace_add_and_get(Blackhole blackhole, Mock mockData) {
-        CollectionWorkspace<URI> workspace = new CollectionWorkspace<>(List.of());
+    public void PackedUriIntRangeJobWorkspace_add_twice(Blackhole blackhole, Mock mockData) {
+        JobWorkspace<URI> workspace = new PackedUriIntRangeJobWorkspace("https://localhost/test?id=", "");
 
         for (int i = 0; i < OPERATIONS_COUNT; i++) {
-            workspace.addToDo(mockData.mockUris[i]);
-        }
-
-        for (int i = 0; i < OPERATIONS_COUNT; i++) {
-            workspace.getAndMarkAsInProgress();
+            workspace.add(mockData.mockUris[i]);
+            workspace.add(mockData.mockUris[i]);
         }
 
         blackhole.consume(workspace);
     }
 
-    @Benchmark
-    public void CollectionWorkspace_add_twice(Blackhole blackhole, Mock mockData) {
-        CollectionWorkspace<URI> workspace = new CollectionWorkspace<>(List.of());
+    /*
+        @Benchmark
+        public void CollectionWorkspaceOld_simulate_crawlerEngine(Blackhole blackhole, Mock mockData) {
+            CollectionWorkspaceOld<URI> workspace = new CollectionWorkspaceOld<>(List.of());
+            workspace.addToDo(mockData.getCrawlerExtractedUrisMock()[0].get(0)); //add seed
 
-        for (int i = 0; i < OPERATIONS_COUNT; i++) {
-            workspace.addToDo(mockData.mockUris[i]);
-            workspace.addToDo(mockData.mockUris[i]);
+            for (int i = 0; i < OPERATIONS_COUNT; i++) {
+                final URI currentUri = workspace.getAndMarkAsInProgress();
+                workspace.addAllToDo(mockData.getCrawlerExtractedUrisMock()[i]);
+                workspace.markAsDone(currentUri);
+            }
+
+            blackhole.consume(workspace);
         }
 
-        blackhole.consume(workspace);
-    }
+        @Benchmark
+        public void CollectionWorkspaceOld_add_crawlerEngineExtractedUris(Blackhole blackhole, Mock mockData) {
+            CollectionWorkspaceOld<URI> workspace = new CollectionWorkspaceOld<>(List.of());
 
+            for (int i = 0; i < OPERATIONS_COUNT; i++) {
+                workspace.addAllToDo(mockData.getCrawlerExtractedUrisMock()[i]);
+            }
+
+            blackhole.consume(workspace);
+        }
+
+        @Benchmark
+        public void CollectionWorkspaceOld_add(Blackhole blackhole, Mock mockData) {
+            CollectionWorkspaceOld<URI> workspace = new CollectionWorkspaceOld<>(List.of());
+
+            for (int i = 0; i < OPERATIONS_COUNT; i++) {
+                workspace.addToDo(mockData.mockUris[i]);
+            }
+
+            blackhole.consume(workspace);
+        }
+
+        @Benchmark
+        public void CollectionWorkspaceOld_add_and_get(Blackhole blackhole, Mock mockData) {
+            CollectionWorkspaceOld<URI> workspace = new CollectionWorkspaceOld<>(List.of());
+
+            for (int i = 0; i < OPERATIONS_COUNT; i++) {
+                workspace.addToDo(mockData.mockUris[i]);
+            }
+
+            for (int i = 0; i < OPERATIONS_COUNT; i++) {
+                workspace.getAndMarkAsInProgress();
+            }
+
+            blackhole.consume(workspace);
+        }
+
+        @Benchmark
+        public void CollectionWorkspaceOld_add_twice(Blackhole blackhole, Mock mockData) {
+            CollectionWorkspaceOld<URI> workspace = new CollectionWorkspaceOld<>(List.of());
+
+            for (int i = 0; i < OPERATIONS_COUNT; i++) {
+                workspace.addToDo(mockData.mockUris[i]);
+                workspace.addToDo(mockData.mockUris[i]);
+            }
+
+            blackhole.consume(workspace);
+        }
+    */
     @State(Scope.Thread)
     public static class Mock {
         private final int HREFS_COUNT = OPERATIONS_COUNT;
@@ -171,16 +241,36 @@ public class WorkspacesComparision {
             return crawlerExtractedUrisMock;
         }
 
-        @Setup(Level.Iteration)
+        @Setup(Level.Trial)
         public void setup() {
             for (int i = 0; i < HREFS_COUNT; i++) {
-                mockUris[i] = URI.create("https://localhost/" + i);
+                mockUris[i] = URI.create("https://localhost/test?id=" + i);
             }
 
             final URI baseUri = URI.create("https://localhost/");
-            for (int i = 0; i < HREFS_COUNT; i++) {
-                crawlerExtractedUrisMock[i] = MockHtmlUtils.createURIs(baseUri, i, 128, 0, 128, HREFS_COUNT);
+            final List<URI> uriRange = MockHtmlUtils.createURIsRange(baseUri, 0, HREFS_COUNT);
+
+            for (int currentPageId = 0; currentPageId < HREFS_COUNT; currentPageId++) {
+                List<URI> currentPageUris = new ArrayList<>();
+                for (long lastCurrentId = Math.min(128, currentPageId - 1); lastCurrentId > 0L; lastCurrentId--) {
+                    final int nextId = (int) (currentPageId - lastCurrentId - 1);
+                    currentPageUris.add(uriRange.get(nextId));
+                }
+
+                currentPageUris.add(uriRange.get(currentPageId));
+
+                final long nextHrefsCount = Math.min(128, HREFS_COUNT - currentPageId - 1);
+                for (long i = 0L; i < nextHrefsCount; i++) {
+                    final int nextId = (int) (currentPageId + 1L + i);
+                    currentPageUris.add(uriRange.get(nextId));
+                }
+
+                crawlerExtractedUrisMock[currentPageId] = currentPageUris;
             }
+
+            shuffleArray(crawlerExtractedUrisMock);
+
+//            System.out.print("(SETUP END) ");
         }
     }
 }

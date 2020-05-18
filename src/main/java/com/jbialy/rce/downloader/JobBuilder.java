@@ -5,6 +5,7 @@ import com.jbialy.rce.callbacks.CallbackState;
 import com.jbialy.rce.callbacks.CallbackTrigger;
 import com.jbialy.rce.callbacks.DataCallback;
 import com.jbialy.rce.collections.workspace.*;
+import com.jbialy.rce.collections.workspace.implementation.GeneralPurposeJobWorkspace;
 import com.jbialy.rce.downloader.core.*;
 import com.jbialy.rce.utils.sneakytry.ThrowableBiConsumer;
 
@@ -19,10 +20,10 @@ import java.util.function.Supplier;
 
 @SuppressWarnings("jol")
 public class JobBuilder<D, U extends Comparable<U>> {
-    private final Supplier<JobWorkspace_2<U>> workspaceSupplier;
+    private final Supplier<JobWorkspace<U>> workspaceSupplier;
     private EngineConfig configV3 = EngineConfig.DEFAULT_CONFIG;
     private Function<DownloadResult<D, U>, Collection<U>> uriExtractor = downloadResult -> List.of();
-    private CallbackTrigger<JobWorkspace_2<U>> checkpointCallbackTrigger = CallbackTrigger.createEmpty();
+    private CallbackTrigger<JobWorkspace<U>> checkpointCallbackTrigger = CallbackTrigger.createEmpty();
     private Receiver<?, DownloadResult<D, U>> responsesHandler = new Receiver<>(() -> null, (closeable, euDownloadResult) -> {
     });
     private Runnable onCompleteListener = () -> {
@@ -43,7 +44,7 @@ public class JobBuilder<D, U extends Comparable<U>> {
 
     private Downloader<D, U> downloader = null;
 
-    public JobBuilder(Supplier<JobWorkspace_2<U>> workspaceSupplier) {
+    public JobBuilder(Supplier<JobWorkspace<U>> workspaceSupplier) {
         this.workspaceSupplier = workspaceSupplier;
     }
 
@@ -51,7 +52,7 @@ public class JobBuilder<D, U extends Comparable<U>> {
         this.workspaceSupplier = () -> WorkspaceHelper.fromCollectionAsSet_2(Arrays.asList(uris));
     }
 
-    public static JobBuilder<byte[], URI> simpleUriBuilder(JobWorkspace2Impl<URI> workspace) {
+    public static JobBuilder<byte[], URI> simpleUriBuilder(GeneralPurposeJobWorkspace<URI> workspace) {
         final Supplier<GenericHttpClient<byte[], URI>> httpClient = (Supplier<GenericHttpClient<byte[], URI>>) () -> HttpClientHelper.createDefaultHttpClient();
         return new JobBuilder<byte[], URI>(() -> workspace)
 //                .setRequestMaker(GenericRequestHelper::uriGenericGetRequest)
@@ -94,7 +95,7 @@ public class JobBuilder<D, U extends Comparable<U>> {
 //        return simpleUriBuilder(CollectionWorkspace.fromToDoCollection(Arrays.asList(uris)));
 //    }
 
-    public JobBuilder<D, U> checkpointCallback(Predicate<CallbackState> callbackPredicate, DataCallback<JobWorkspace_2<U>> callback) {
+    public JobBuilder<D, U> checkpointCallback(Predicate<CallbackState> callbackPredicate, DataCallback<JobWorkspace<U>> callback) {
         this.checkpointCallbackTrigger = new CallbackTrigger<>(callbackPredicate, callback);
         return this;
     }
@@ -158,7 +159,7 @@ public class JobBuilder<D, U extends Comparable<U>> {
             }
 
             @Override
-            public Supplier<JobWorkspace_2<U>> workspaceSupplier() {
+            public Supplier<JobWorkspace<U>> workspaceSupplier() {
                 return workspaceSupplier;
             }
 
@@ -189,7 +190,7 @@ public class JobBuilder<D, U extends Comparable<U>> {
             }
 
             @Override
-            public CallbackTrigger<JobWorkspace_2<U>> getCheckpointCallbackTrigger() {
+            public CallbackTrigger<JobWorkspace<U>> getCheckpointCallbackTrigger() {
                 return checkpointCallbackTrigger;
             }
 
