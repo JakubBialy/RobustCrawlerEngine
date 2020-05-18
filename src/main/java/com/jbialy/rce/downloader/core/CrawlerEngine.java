@@ -2,7 +2,7 @@ package com.jbialy.rce.downloader.core;
 
 import com.jbialy.rce.ThrowingRunnable;
 import com.jbialy.rce.callbacks.CallbackTrigger;
-import com.jbialy.rce.collections.workspace.JobWorkspace;
+import com.jbialy.rce.collections.workspace.Workspace;
 import com.jbialy.rce.downloader.JobStatistics;
 import com.jbialy.rce.downloader.SafetySwitch;
 import io.reactivex.rxjava3.annotations.NonNull;
@@ -37,7 +37,7 @@ public class CrawlerEngine {
     }
 
     @NonNull
-    private static <E> Flowable<E> workspaceToFlowable(long desiredRatePerSecond, SafetySwitch<?> requestSafetySwitch, EngineState engineState, JobWorkspace<E> workspace) {
+    private static <E> Flowable<E> workspaceToFlowable(long desiredRatePerSecond, SafetySwitch<?> requestSafetySwitch, EngineState engineState, Workspace<E> workspace) {
         return Flowable.generate(FlowableGeneratorState::new, (generatorState, emitter) -> {
             if (!requestSafetySwitch.isActivated() && engineState.isRunning()) {
                 final E item = workspace.moveToProcessingAndReturnWaitIfInProgressIsNotEmpty();
@@ -75,7 +75,7 @@ public class CrawlerEngine {
         return () -> {
             //Job environment
             final EngineConfig config = job.getConfig();
-            final JobWorkspace<U> jobWorkspace = job.workspaceSupplier().get();
+            final Workspace<U> workspace = job.workspaceSupplier().get();
             final SafetySwitch<DownloadResult<D, U>> requestSafetySwitch = new SafetySwitch<>(job.getSafetySwitchPredicate());
             final Downloader<D, U> downloader = job.getDownloadModule();
 
@@ -85,11 +85,11 @@ public class CrawlerEngine {
 
             //Listeners
             final Runnable onCompleteListener = job.getOnCompleteListener();
-            final CallbackTrigger<JobWorkspace<U>> checkpointCallbackTrigger = job.getCheckpointCallbackTrigger();
+            final CallbackTrigger<Workspace<U>> checkpointCallbackTrigger = job.getCheckpointCallbackTrigger();
             final CallbackTrigger<JobStatistics> progressCallbackTrigger = job.getProgressUpdatesCallbackTrigger();
 
             try (final Receiver<?, DownloadResult<D, U>> responseReceiver = job.responsesHandler()) {
-                workspaceToFlowable(config.getMaxRate(), requestSafetySwitch, engineState, jobWorkspace)
+                workspaceToFlowable(config.getMaxRate(), requestSafetySwitch, engineState, workspace)
                         //DOWNLOAD
                         .subscribeOn(Schedulers.io())
                         .parallel(config.getMaxDownloadingThreadsNum(), 1)
@@ -99,10 +99,10 @@ public class CrawlerEngine {
                         //PROCESSING
                         .parallel(config.getMaxProcessingThreadsNum(), 1)
                         .runOn(Schedulers.io())
-                        .doOnNext(dr -> jobWorkspace.addAllToDo(urisExtractor.apply(dr)))
+                        .doOnNext(dr -> workspace.addAllToDo(urisExtractor.apply(dr)))
                         .doOnNext(dr -> {
                             if (passToReceiverPredicate.test(dr)) {
-                                jobWorkspace.getJobStatistics().incrementTasksSentToReceiver();
+                                workspace.getJobStatistics().incrementTasksSentToReceiver();
                                 responseReceiver.accept(dr);
                             }
                         })
@@ -110,19 +110,19 @@ public class CrawlerEngine {
                         //POST-PROCESSING
                         .doOnNext(dr -> {
                             if (dr.getException() != null) {
-                                jobWorkspace.moveToDamaged(dr.getRequest().getUri());
-                                jobWorkspace.moveToDamaged(dr.getResponse().uri());
+                                workspace.moveToDamaged(dr.getRequest().getUri());
+                                workspace.moveToDamaged(dr.getResponse().uri());
                             } else {
-                                jobWorkspace.moveToDone(dr.getRequest().getUri(), dr.getResponse().uri());
+                                workspace.moveToDone(dr.getRequest().getUri(), dr.getResponse().uri());
                             }
                         })
-                        .doOnNext(dr -> progressCallbackTrigger.tryTrigger(() -> jobWorkspace.getJobStatistics().copy()))
-                        .doOnNext(dr -> checkpointCallbackTrigger.tryTrigger(jobWorkspace::copy))
+                        .doOnNext(dr -> progressCallbackTrigger.tryTrigger(() -> workspace.getJobStatistics().copy()))
+                        .doOnNext(dr -> checkpointCallbackTrigger.tryTrigger(workspace::copy))
                         .doOnComplete(onCompleteListener::run)
                         .blockingSubscribe(next -> {
                         }, Throwable::printStackTrace, () -> {
-                            progressCallbackTrigger.forceTrigger(jobWorkspace.getJobStatistics().copy());
-                            checkpointCallbackTrigger.forceTrigger(jobWorkspace.copy());
+                            progressCallbackTrigger.forceTrigger(workspace.getJobStatistics().copy());
+                            checkpointCallbackTrigger.forceTrigger(workspace.copy());
                         });
             }
         };

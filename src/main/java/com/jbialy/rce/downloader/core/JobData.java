@@ -1,7 +1,7 @@
 package com.jbialy.rce.downloader.core;
 
 import com.jbialy.rce.callbacks.CallbackTrigger;
-import com.jbialy.rce.collections.workspace.JobWorkspace;
+import com.jbialy.rce.collections.workspace.Workspace;
 import com.jbialy.rce.downloader.JobStatistics;
 
 import java.util.Collection;
@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 public interface JobData<D, U> { //D - DownloadResult | U - URI
     EngineConfig getConfig();
 
-    Supplier<JobWorkspace<U>> workspaceSupplier();
+    Supplier<Workspace<U>> workspaceSupplier();
 
     Receiver<?, DownloadResult<D, U>> responsesHandler();
 
@@ -24,7 +24,7 @@ public interface JobData<D, U> { //D - DownloadResult | U - URI
 
     Predicate<DownloadResult<D, U>> getPassToReceiverPredicate();
 
-    CallbackTrigger<JobWorkspace<U>> getCheckpointCallbackTrigger();
+    CallbackTrigger<Workspace<U>> getCheckpointCallbackTrigger();
 
     CallbackTrigger<JobStatistics> getProgressUpdatesCallbackTrigger();
 

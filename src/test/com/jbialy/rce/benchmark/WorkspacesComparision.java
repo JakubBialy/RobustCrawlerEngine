@@ -1,8 +1,8 @@
 package com.jbialy.rce.benchmark;
 
-import com.jbialy.rce.collections.workspace.JobWorkspace;
-import com.jbialy.rce.collections.workspace.implementation.GeneralPurposeJobWorkspace;
-import com.jbialy.rce.collections.workspace.implementation.PackedUriIntRangeJobWorkspace;
+import com.jbialy.rce.collections.workspace.Workspace;
+import com.jbialy.rce.collections.workspace.implementation.GeneralPurposeWorkspace;
+import com.jbialy.rce.collections.workspace.implementation.PackedUriIntRangeWorkspace;
 import com.jbialy.rce.utils.server.MockHtmlUtils;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
@@ -41,8 +41,8 @@ public class WorkspacesComparision {
     }
 
     @Benchmark
-    public static void PackedUriIntRangeJobWorkspace_add(Blackhole blackhole, Mock mockData) {
-        JobWorkspace<URI> workspace = new PackedUriIntRangeJobWorkspace("https://localhost/test?id=", "");
+    public static void PackedUriIntRangeWorkspace_add(Blackhole blackhole, Mock mockData) {
+        Workspace<URI> workspace = new PackedUriIntRangeWorkspace("https://localhost/test?id=", "");
 
         for (int i = 0; i < OPERATIONS_COUNT; i++) {
             workspace.add(mockData.mockUris[i]);
@@ -52,8 +52,8 @@ public class WorkspacesComparision {
     }
 
     @Benchmark
-    public void GeneralPurposeJobWorkspace_add_crawlerEngineExtractedUris(Blackhole blackhole, Mock mockData) {
-        JobWorkspace<URI> workspace = GeneralPurposeJobWorkspace.createEmpty();
+    public void GeneralPurposeWorkspace_add_crawlerEngineExtractedUris(Blackhole blackhole, Mock mockData) {
+        Workspace<URI> workspace = GeneralPurposeWorkspace.createEmpty();
 
         for (int i = 0; i < OPERATIONS_COUNT; i++) {
             workspace.addAllToDo(mockData.getCrawlerExtractedUrisMock()[i]);
@@ -63,8 +63,8 @@ public class WorkspacesComparision {
     }
 
     @Benchmark
-    public void GeneralPurposeJobWorkspace_simulate_crawlerEngine(Blackhole blackhole, Mock mockData) {
-        JobWorkspace<URI> workspace = GeneralPurposeJobWorkspace.createEmpty();
+    public void GeneralPurposeWorkspace_simulate_crawlerEngine(Blackhole blackhole, Mock mockData) {
+        Workspace<URI> workspace = GeneralPurposeWorkspace.createEmpty();
         workspace.add(mockData.getCrawlerExtractedUrisMock()[0].get(0)); //add seed
 
         for (int i = 0; i < OPERATIONS_COUNT; i++) {
@@ -77,8 +77,8 @@ public class WorkspacesComparision {
     }
 
     @Benchmark
-    public void GeneralPurposeJobWorkspace_add_and_get(Blackhole blackhole, Mock mockData) {
-        JobWorkspace<URI> workspace = GeneralPurposeJobWorkspace.createEmpty();
+    public void GeneralPurposeWorkspace_add_and_get(Blackhole blackhole, Mock mockData) {
+        Workspace<URI> workspace = GeneralPurposeWorkspace.createEmpty();
 
         for (int i = 0; i < OPERATIONS_COUNT; i++) {
             workspace.add(mockData.mockUris[i]);
@@ -92,8 +92,8 @@ public class WorkspacesComparision {
     }
 
     @Benchmark
-    public void GeneralPurposeJobWorkspace_add(Blackhole blackhole, Mock mockData) {
-        JobWorkspace<URI> workspace = GeneralPurposeJobWorkspace.createEmpty();
+    public void GeneralPurposeWorkspace_add(Blackhole blackhole, Mock mockData) {
+        Workspace<URI> workspace = GeneralPurposeWorkspace.createEmpty();
 
         for (int i = 0; i < OPERATIONS_COUNT; i++) {
             workspace.add(mockData.mockUris[i]);
@@ -103,8 +103,8 @@ public class WorkspacesComparision {
     }
 
     @Benchmark
-    public void GeneralPurposeJobWorkspace_add_twice(Blackhole blackhole, Mock mockData) {
-        JobWorkspace<URI> workspace = GeneralPurposeJobWorkspace.createEmpty();
+    public void GeneralPurposeWorkspace_add_twice(Blackhole blackhole, Mock mockData) {
+        Workspace<URI> workspace = GeneralPurposeWorkspace.createEmpty();
 
         for (int i = 0; i < OPERATIONS_COUNT; i++) {
             workspace.add(mockData.mockUris[i]);
@@ -115,8 +115,8 @@ public class WorkspacesComparision {
     }
 
     @Benchmark
-    public void PackedUriIntRangeJobWorkspace_add_crawlerEngineExtractedUris(Blackhole blackhole, Mock mockData) {
-        JobWorkspace<URI> workspace = new PackedUriIntRangeJobWorkspace("https://localhost/test?id=", "");
+    public void PackedUriIntRangeWorkspace_add_crawlerEngineExtractedUris(Blackhole blackhole, Mock mockData) {
+        Workspace<URI> workspace = new PackedUriIntRangeWorkspace("https://localhost/test?id=", "");
 
         for (int i = 0; i < OPERATIONS_COUNT; i++) {
             workspace.addAllToDo(mockData.getCrawlerExtractedUrisMock()[i]);
@@ -126,8 +126,8 @@ public class WorkspacesComparision {
     }
 
     @Benchmark
-    public void PackedUriIntRangeJobWorkspace_simulate_crawlerEngine(Blackhole blackhole, Mock mockData) {
-        JobWorkspace<URI> workspace = new PackedUriIntRangeJobWorkspace("https://localhost/test?id=", "");
+    public void PackedUriIntRangeWorkspace_simulate_crawlerEngine(Blackhole blackhole, Mock mockData) {
+        Workspace<URI> workspace = new PackedUriIntRangeWorkspace("https://localhost/test?id=", "");
         workspace.add(mockData.getCrawlerExtractedUrisMock()[0].get(0)); //add seed
 
         for (int i = 0; i < OPERATIONS_COUNT; i++) {
@@ -141,8 +141,8 @@ public class WorkspacesComparision {
 
 
     @Benchmark
-    public void PackedUriIntRangeJobWorkspace_add_and_get(Blackhole blackhole, Mock mockData) {
-        JobWorkspace<URI> workspace = new PackedUriIntRangeJobWorkspace("https://localhost/test?id=", "");
+    public void PackedUriIntRangeWorkspace_add_and_get(Blackhole blackhole, Mock mockData) {
+        Workspace<URI> workspace = new PackedUriIntRangeWorkspace("https://localhost/test?id=", "");
 
         for (int i = 0; i < OPERATIONS_COUNT; i++) {
             workspace.add(mockData.mockUris[i]);
@@ -156,8 +156,8 @@ public class WorkspacesComparision {
     }
 
     @Benchmark
-    public void PackedUriIntRangeJobWorkspace_add_twice(Blackhole blackhole, Mock mockData) {
-        JobWorkspace<URI> workspace = new PackedUriIntRangeJobWorkspace("https://localhost/test?id=", "");
+    public void PackedUriIntRangeWorkspace_add_twice(Blackhole blackhole, Mock mockData) {
+        Workspace<URI> workspace = new PackedUriIntRangeWorkspace("https://localhost/test?id=", "");
 
         for (int i = 0; i < OPERATIONS_COUNT; i++) {
             workspace.add(mockData.mockUris[i]);

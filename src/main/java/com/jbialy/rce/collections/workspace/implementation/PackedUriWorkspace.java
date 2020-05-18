@@ -9,36 +9,36 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.function.Function;
 
-public class PackedUriJobWorkspace extends GeneralPurposeJobWorkspace<URI> {
+public class PackedUriWorkspace extends GeneralPurposeWorkspace<URI> {
 
-    private PackedUriJobWorkspace(Set<URI> allItems, Queue<URI> todo, Set<URI> inProgress, Set<URI> done, Set<URI> damaged) {
+    private PackedUriWorkspace(Set<URI> allItems, Queue<URI> todo, Set<URI> inProgress, Set<URI> done, Set<URI> damaged) {
         super(allItems, todo, inProgress, done, damaged);
     }
 
-    public static PackedUriJobWorkspace createWithCommonLeftAndRightPart(String leftPart, String rightPart) {
+    public static PackedUriWorkspace createWithCommonLeftAndRightPart(String leftPart, String rightPart) {
         final Function<URI, byte[]> packer = uri -> uri.toString().replaceFirst(leftPart, "").replaceAll(rightPart + "$", "").getBytes(StandardCharsets.UTF_8);
         final Function<byte[], URI> unpacker = str -> URI.create(leftPart + new String(str, StandardCharsets.UTF_8) + rightPart);
 
-        return createPackedCollectionJobWorkspace(packer, unpacker);
+        return createPackedCollectionWorkspace(packer, unpacker);
     }
 
-    public static PackedUriJobWorkspace createWithCommonRightPart(String rightPart) {
+    public static PackedUriWorkspace createWithCommonRightPart(String rightPart) {
         final Function<URI, byte[]> packer = uri -> uri.toString().replaceAll(rightPart + "$", "").getBytes(StandardCharsets.UTF_8);
         final Function<byte[], URI> unpacker = str -> URI.create(new String(str, StandardCharsets.UTF_8) + rightPart);
 
-        return createPackedCollectionJobWorkspace(packer, unpacker);
+        return createPackedCollectionWorkspace(packer, unpacker);
     }
 
-    public static PackedUriJobWorkspace createWithCommonLeftPart(String leftPart) {
+    public static PackedUriWorkspace createWithCommonLeftPart(String leftPart) {
         final Function<URI, byte[]> packer = uri -> uri.toString().replace(leftPart, "").getBytes(StandardCharsets.UTF_8);
         final Function<byte[], URI> unpacker = str -> URI.create(leftPart + new String(str, StandardCharsets.UTF_8));
 
-        return createPackedCollectionJobWorkspace(packer, unpacker);
+        return createPackedCollectionWorkspace(packer, unpacker);
     }
 
     @NotNull
-    private static <T> PackedUriJobWorkspace createPackedCollectionJobWorkspace(Function<URI, T> packer, Function<T, URI> unpacker) {
-        return new PackedUriJobWorkspace(
+    private static <T> PackedUriWorkspace createPackedCollectionWorkspace(Function<URI, T> packer, Function<T, URI> unpacker) {
+        return new PackedUriWorkspace(
                 new PackedCollection<>(packer, unpacker),
                 new PackedCollection<>(packer, unpacker),
                 new PackedCollection<>(packer, unpacker),

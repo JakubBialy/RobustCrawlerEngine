@@ -1,9 +1,9 @@
 package com.jbialy.rce.benchmark;
 
-import com.jbialy.rce.collections.workspace.JobWorkspace;
-import com.jbialy.rce.collections.workspace.implementation.GeneralPurposeJobWorkspace;
-import com.jbialy.rce.collections.workspace.implementation.PackedUriJobWorkspace;
-import com.jbialy.rce.collections.workspace.implementation.PackedUriIntRangeJobWorkspace;
+import com.jbialy.rce.collections.workspace.Workspace;
+import com.jbialy.rce.collections.workspace.implementation.GeneralPurposeWorkspace;
+import com.jbialy.rce.collections.workspace.implementation.PackedUriWorkspace;
+import com.jbialy.rce.collections.workspace.implementation.PackedUriIntRangeWorkspace;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.runner.Runner;
@@ -15,7 +15,7 @@ import org.openjdk.jmh.runner.options.TimeValue;
 import java.net.URI;
 
 @State(Scope.Benchmark)
-public class JobWorkspaceOOMTests {
+public class WorkspaceOOMTests {
     @Param({
             "250000", "1000000", "2000000", // 250k, 1M, 2M
             "4000000", "8000000", "16000000", // 4M, 8M, 16M
@@ -26,7 +26,7 @@ public class JobWorkspaceOOMTests {
 
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
-                .include(JobWorkspaceOOMTests.class.getSimpleName())
+                .include(WorkspaceOOMTests.class.getSimpleName())
                 .forks(1)
                 .mode(Mode.Throughput)
                 .measurementTime(TimeValue.seconds(1))
@@ -48,8 +48,8 @@ public class JobWorkspaceOOMTests {
 //    }
 
     @Benchmark
-    public void JobWorkspaceImpl_add(Blackhole blackhole) {
-        JobWorkspace<URI> workspace = GeneralPurposeJobWorkspace.createEmpty();
+    public void WorkspaceImpl_add(Blackhole blackhole) {
+        Workspace<URI> workspace = GeneralPurposeWorkspace.createEmpty();
 
         final URI baseUri = URI.create("https://localhost/");
         for (int i = 0; i < OPERATIONS_COUNT; i++) {
@@ -60,8 +60,8 @@ public class JobWorkspaceOOMTests {
     }
 
     @Benchmark
-    public void JobWorkspacePackedUriIntRange_add(Blackhole blackhole) {
-        JobWorkspace<URI> workspace = new PackedUriIntRangeJobWorkspace("https://localhost/test?id=", "");
+    public void WorkspacePackedUriIntRange_add(Blackhole blackhole) {
+        Workspace<URI> workspace = new PackedUriIntRangeWorkspace("https://localhost/test?id=", "");
 
         final URI baseUri = URI.create("https://localhost/");
         for (int i = 0; i < OPERATIONS_COUNT; i++) {
@@ -72,8 +72,8 @@ public class JobWorkspaceOOMTests {
     }
 
     @Benchmark
-    public void JobWorkspacePackedUri_commonLeftPart_add(Blackhole blackhole) {
-        JobWorkspace<URI> workspace = PackedUriJobWorkspace.createWithCommonLeftPart("https://localhost/test?id=");
+    public void WorkspacePackedUri_commonLeftPart_add(Blackhole blackhole) {
+        Workspace<URI> workspace = PackedUriWorkspace.createWithCommonLeftPart("https://localhost/test?id=");
 
         final URI baseUri = URI.create("https://localhost/");
         for (int i = 0; i < OPERATIONS_COUNT; i++) {

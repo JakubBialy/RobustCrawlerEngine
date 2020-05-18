@@ -2,7 +2,7 @@ package com.jbialy.rce.collections.workspace.implementation;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.jbialy.rce.collections.workspace.JobWorkspace;
+import com.jbialy.rce.collections.workspace.Workspace;
 import com.jbialy.rce.downloader.JobStatistics;
 
 import java.io.IOException;
@@ -13,7 +13,7 @@ import java.util.*;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class GeneralPurposeJobWorkspace<T extends Comparable<T>> implements JobWorkspace<T> {
+public class GeneralPurposeWorkspace<T extends Comparable<T>> implements Workspace<T> {
     //  1. to do
     //  2. in progress
     //  3.1 done
@@ -27,7 +27,7 @@ public class GeneralPurposeJobWorkspace<T extends Comparable<T>> implements JobW
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final Condition inProgressEmptyCondition = readWriteLock.writeLock().newCondition();
 
-    private GeneralPurposeJobWorkspace() {
+    private GeneralPurposeWorkspace() {
         this.allItems = new HashSet<>();
         this.toDoItems = new ArrayDeque<>();
         this.inProgressItems = new LinkedHashSet<>();
@@ -36,18 +36,18 @@ public class GeneralPurposeJobWorkspace<T extends Comparable<T>> implements JobW
         this.jobStatistics = new JobStatistics();
     }
 
-    private GeneralPurposeJobWorkspace(Collection<T> todo) {
+    private GeneralPurposeWorkspace(Collection<T> todo) {
         this();
         this.toDoItems.addAll(todo);
         this.allItems.addAll(this.toDoItems);
         this.jobStatistics.incrementTasksToDo(todo.size());
     }
 
-    protected GeneralPurposeJobWorkspace(Set<T> allItems, Queue<T> todo, Set<T> inProgress, Set<T> done, Set<T> damaged) {
+    protected GeneralPurposeWorkspace(Set<T> allItems, Queue<T> todo, Set<T> inProgress, Set<T> done, Set<T> damaged) {
         this(allItems, todo, inProgress, done, damaged, new JobStatistics());
     }
 
-    protected GeneralPurposeJobWorkspace(Set<T> allItems, Queue<T> todo, Set<T> inProgress, Set<T> done, Set<T> damaged, JobStatistics jobStatistics) {
+    protected GeneralPurposeWorkspace(Set<T> allItems, Queue<T> todo, Set<T> inProgress, Set<T> done, Set<T> damaged, JobStatistics jobStatistics) {
         this.allItems = allItems;
         this.toDoItems = todo;
         this.inProgressItems = inProgress;
@@ -56,20 +56,20 @@ public class GeneralPurposeJobWorkspace<T extends Comparable<T>> implements JobW
         this.jobStatistics = jobStatistics;
     }
 
-    public static <T extends Comparable<T>> GeneralPurposeJobWorkspace<T> createCustom(Set<T> allItems, Queue<T> todo, Set<T> inProgress, Set<T> done, Set<T> damaged) {
-        return new GeneralPurposeJobWorkspace<>(allItems, todo, inProgress, done, damaged);
+    public static <T extends Comparable<T>> GeneralPurposeWorkspace<T> createCustom(Set<T> allItems, Queue<T> todo, Set<T> inProgress, Set<T> done, Set<T> damaged) {
+        return new GeneralPurposeWorkspace<>(allItems, todo, inProgress, done, damaged);
     }
 
-    public static <T extends Comparable<T>> GeneralPurposeJobWorkspace<T> createEmpty() {
-        return new GeneralPurposeJobWorkspace<>();
+    public static <T extends Comparable<T>> GeneralPurposeWorkspace<T> createEmpty() {
+        return new GeneralPurposeWorkspace<>();
     }
 
-    public static <T extends Comparable<T>> GeneralPurposeJobWorkspace<T> fromToDoCollection(Collection<T> todo) {
-        return new GeneralPurposeJobWorkspace<>(todo);
+    public static <T extends Comparable<T>> GeneralPurposeWorkspace<T> fromToDoCollection(Collection<T> todo) {
+        return new GeneralPurposeWorkspace<>(todo);
     }
 
-    public static <T extends Comparable<T>> GeneralPurposeJobWorkspace<T> deserializeFromJSON(String json, Class<T> type) {
-        return new GsonBuilder().create().fromJson(json, TypeToken.getParameterized(GeneralPurposeJobWorkspace.class, type).getType());
+    public static <T extends Comparable<T>> GeneralPurposeWorkspace<T> deserializeFromJSON(String json, Class<T> type) {
+        return new GsonBuilder().create().fromJson(json, TypeToken.getParameterized(GeneralPurposeWorkspace.class, type).getType());
     }
 
    /* public static <T extends Comparable<T>> JobWorkspace2Impl<T> fromJobWorkspace(JobWorkspace_2<T> otherWS, boolean interpretInProgressAsToDo) {
@@ -97,9 +97,9 @@ public class GeneralPurposeJobWorkspace<T extends Comparable<T>> implements JobW
         }
     }*/
 
-    public static <T extends Comparable<T>> GeneralPurposeJobWorkspace<T> fromFileOrElseCreateFromSeed(Class<T> type, Path path, T seed) {
+    public static <T extends Comparable<T>> GeneralPurposeWorkspace<T> fromFileOrElseCreateFromSeed(Class<T> type, Path path, T seed) {
         try {
-            final GeneralPurposeJobWorkspace<T> workspace = deserializeFromJSON(Files.readString(path, StandardCharsets.UTF_8), type);
+            final GeneralPurposeWorkspace<T> workspace = deserializeFromJSON(Files.readString(path, StandardCharsets.UTF_8), type);
 
             if (workspace == null) {
                 return fromToDoCollection(Collections.singletonList(seed));
@@ -116,7 +116,7 @@ public class GeneralPurposeJobWorkspace<T extends Comparable<T>> implements JobW
     }
 
     @Override
-    public JobWorkspace<T> copy() {
+    public Workspace<T> copy() {
         final Queue<T> toDoItemsCopy;
         final Set<T> inProgressItemsCopy;
         final Set<T> doneItemsCopy;
@@ -141,7 +141,7 @@ public class GeneralPurposeJobWorkspace<T extends Comparable<T>> implements JobW
         allItemsCopy.addAll(doneItemsCopy);
         allItemsCopy.addAll(damagedItemsCopy);
 
-        return new GeneralPurposeJobWorkspace<>(allItemsCopy, toDoItemsCopy, inProgressItemsCopy, doneItemsCopy, damagedItemsCopy, jobStatisticsCopy);
+        return new GeneralPurposeWorkspace<>(allItemsCopy, toDoItemsCopy, inProgressItemsCopy, doneItemsCopy, damagedItemsCopy, jobStatisticsCopy);
     }
 
     @Override

@@ -4,9 +4,9 @@ import com.jbialy.rce.downloader.JobStatistics;
 
 import java.util.Collection;
 
-public interface JobWorkspace<T> {
+public interface Workspace<T> {
 
-    JobWorkspace<T> copy();
+    Workspace<T> copy();
 
     JobStatistics getJobStatistics();
 

@@ -2,7 +2,7 @@ package com.jbialy.rce.collections.workspace;
 
 import com.jbialy.rce.collections.RangeIntUriSet;
 import com.jbialy.rce.collections.workspace.implementation.CollectionWorkspaceOld;
-import com.jbialy.rce.collections.workspace.implementation.GeneralPurposeJobWorkspace;
+import com.jbialy.rce.collections.workspace.implementation.GeneralPurposeWorkspace;
 import com.jbialy.rce.downloader.JobStatistics;
 import com.jbialy.rce.utils.NotImplementedError;
 
@@ -108,8 +108,8 @@ public class WorkspaceHelper {
         return CollectionWorkspaceOld.fromToDoCollection(collection);
     }
 
-    public static <U extends Comparable<U>> JobWorkspace<U> fromCollectionAsSet_2(Collection<U> collection) {
-        return GeneralPurposeJobWorkspace.fromToDoCollection(collection);
+    public static <U extends Comparable<U>> Workspace<U> fromCollectionAsSet_2(Collection<U> collection) {
+        return GeneralPurposeWorkspace.fromToDoCollection(collection);
     }
 
     public static class MemoryEfficient {

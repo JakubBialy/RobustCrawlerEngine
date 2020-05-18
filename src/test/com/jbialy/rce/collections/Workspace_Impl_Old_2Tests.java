@@ -1,20 +1,20 @@
 package com.jbialy.rce.collections;
 
-import com.jbialy.rce.collections.workspace.implementation.GeneralPurposeJobWorkspace;
-import com.jbialy.rce.collections.workspace.JobWorkspace;
+import com.jbialy.rce.collections.workspace.implementation.GeneralPurposeWorkspace;
+import com.jbialy.rce.collections.workspace.Workspace;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 
-public class JobWorkspace_Impl_Old_2Tests {
+public class Workspace_Impl_Old_2Tests {
     static URI createMockURI(long id) {
         return URI.create("http://localhost/" + id);
     }
 
     @Test
     public void createEmptyTest() {
-        JobWorkspace<URI> workspace = GeneralPurposeJobWorkspace.createEmpty();
+        Workspace<URI> workspace = GeneralPurposeWorkspace.createEmpty();
 
         Assertions.assertEquals(0, workspace.allItemsCount());
         Assertions.assertEquals(0, workspace.todoCount());
@@ -27,7 +27,7 @@ public class JobWorkspace_Impl_Old_2Tests {
     public void addWithoutDuplicatesTest() {
         final int COUNT = 100_000;
 
-        JobWorkspace<URI> workspace = GeneralPurposeJobWorkspace.createEmpty();
+        Workspace<URI> workspace = GeneralPurposeWorkspace.createEmpty();
 
         for (int i = 0; i < COUNT; i++) {
             Assertions.assertTrue(workspace.add(createMockURI(i)));
@@ -44,7 +44,7 @@ public class JobWorkspace_Impl_Old_2Tests {
     public void tryIllegallyMove_from_todo() {
         final int COUNT = 100_000;
 
-        JobWorkspace<URI> workspace = GeneralPurposeJobWorkspace.createEmpty();
+        Workspace<URI> workspace = GeneralPurposeWorkspace.createEmpty();
 
         for (int i = 0; i < COUNT; i++) {
             workspace.add(createMockURI(i));
@@ -75,7 +75,7 @@ public class JobWorkspace_Impl_Old_2Tests {
     public void addWithDuplicatesTest() {
         final int COUNT = 100_000;
 
-        JobWorkspace<URI> workspace = GeneralPurposeJobWorkspace.createEmpty();
+        Workspace<URI> workspace = GeneralPurposeWorkspace.createEmpty();
 
         for (int i = 0; i < COUNT; i++) {
             Assertions.assertTrue(workspace.add(createMockURI(i)));
@@ -87,7 +87,7 @@ public class JobWorkspace_Impl_Old_2Tests {
     public void addAndMoveTest() {
         final int COUNT = 100_000;
 
-        JobWorkspace<URI> workspace = GeneralPurposeJobWorkspace.createEmpty();
+        Workspace<URI> workspace = GeneralPurposeWorkspace.createEmpty();
 
         for (int i = 0; i < COUNT; i++) {
             Assertions.assertTrue(workspace.add(createMockURI(i)));
