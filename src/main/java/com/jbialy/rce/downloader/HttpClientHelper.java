@@ -32,7 +32,7 @@ public class HttpClientHelper {
                 .proxy(ProxySelector.getDefault())
                 .connectTimeout(Duration.ofMinutes(5));
 
-        return DownloaderUtils.toGenericHttpClient_V3_2(builder.build());
+        return DownloaderUtils.toGenericHttpClient(builder.build());
     }
 
 //    public static GenericHttpClient createDefaultHttpClient(InetSocketAddress proxy) {

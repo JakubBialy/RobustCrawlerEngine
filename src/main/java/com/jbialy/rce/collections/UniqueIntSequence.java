@@ -2,12 +2,13 @@ package com.jbialy.rce.collections;
 
 import com.jbialy.rce.utils.OutOfRangeException;
 
+import java.nio.BufferOverflowException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
 public class UniqueIntSequence {
-    private final static double EXPAND_FACTOR = 0.1;
+    private final static double EXPAND_FACTOR = 1.0;
     private int[] sequences;
     private int reservedIndexes;
 
@@ -452,7 +453,11 @@ public class UniqueIntSequence {
         int addedSeqRawLeftIndex = getIndexOfFirstContainerStartingAfter(firstValue);
 
         if (reservedIndexes == this.sequences.length) { //
-            int[] freshArray = new int[((int) (this.sequences.length * (1 + EXPAND_FACTOR)) & (0xfffffffe)) + 2];
+            //int[] freshArray = new int[((int) (this.sequences.length * (1 + EXPAND_FACTOR)) & (0xfffffffe)) + 2];
+            int newArrayLengthDelta = Math.min(Integer.MAX_VALUE - this.sequences.length, Math.max((int) (this.sequences.length * (EXPAND_FACTOR)) & 0xfffffffe, 2));
+            int newArrayLength = this.sequences.length + newArrayLengthDelta;
+
+            int[] freshArray = new int[newArrayLength];
 
             System.arraycopy(this.sequences, 0, freshArray, 0, addedSeqRawLeftIndex); //ok
             System.arraycopy(this.sequences, addedSeqRawLeftIndex, freshArray, addedSeqRawLeftIndex + 2, this.sequences.length - addedSeqRawLeftIndex);
@@ -490,7 +495,11 @@ public class UniqueIntSequence {
 
     private int forceAddNewRangeRight(int firstValue, int lastValue) {
         if (reservedIndexes == this.sequences.length) { //
-            int[] freshArray = new int[((int) (this.sequences.length * (1 + EXPAND_FACTOR)) & (0xfffffffe)) + 2];
+            //int[] freshArray = new int[((int) (this.sequences.length * (1 + EXPAND_FACTOR)) & (0xfffffffe)) + 2];
+            int newArrayLengthDelta = Math.min(Integer.MAX_VALUE - this.sequences.length, Math.max((int) (this.sequences.length * (EXPAND_FACTOR)) & 0xfffffffe, 2));
+            int newArrayLength = this.sequences.length + newArrayLengthDelta;
+
+            int[] freshArray = new int[newArrayLength];
 
             System.arraycopy(this.sequences, 0, freshArray, 0, this.sequences.length); //ok
 
@@ -506,7 +515,12 @@ public class UniqueIntSequence {
 
     private int forceAddNewRangeLeft(int firstValue, int lastValue) {
         if (reservedIndexes == this.sequences.length) { //
-            int[] freshArray = new int[((int) (this.sequences.length * (1 + EXPAND_FACTOR)) & (0xfffffffe)) + 2];
+            //int[] freshArray = new int[((int) (this.sequences.length * (1 + EXPAND_FACTOR)) & (0xfffffffe)) + 2];
+            int newArrayLengthDelta = Math.min(Integer.MAX_VALUE - this.sequences.length, Math.max((int) (this.sequences.length * (EXPAND_FACTOR)) & 0xfffffffe, 2));
+            int newArrayLength = this.sequences.length + newArrayLengthDelta;
+
+            int[] freshArray = new int[newArrayLength];
+
 
             System.arraycopy(this.sequences, 0, freshArray, 2, this.sequences.length); //ok
 
@@ -886,8 +900,9 @@ public class UniqueIntSequence {
         return this.sequences[this.reservedIndexes - 1];
     }
 
-    public int count() {
-        int result = 0;
+    //    public int count() {
+    public long count() {
+        long result = 0;
 
         if (this.reservedIndexes == 0) return 0;
 
@@ -895,47 +910,60 @@ public class UniqueIntSequence {
         int currentRawLeftIndex = 0;
         for (; currentRawLeftIndex <= this.reservedIndexes - 2; currentRawLeftIndex += 2) {
 //            int seqSize = this.sequences[(seqIndex * 2) + 1] - this.sequences[(seqIndex * 2)] + 1;
-            int seqSize = this.sequences[currentRawLeftIndex + 1] - this.sequences[currentRawLeftIndex] + 1;
+            long seqSize = (long) this.sequences[currentRawLeftIndex + 1] - (long) this.sequences[currentRawLeftIndex] + 1L;
 
             result += seqSize;
+
+            if (result < 0) {
+                System.out.println("0: " + this.sequences[currentRawLeftIndex + 1]);
+                System.out.println("1: " + this.sequences[currentRawLeftIndex]);
+            }
         }
 
         return result;
     }
 
     public List<Integer> toList() {
-        List<Integer> result = new ArrayList<>(this.count());
+        if (this.count() <= Integer.MAX_VALUE) {
+            List<Integer> result = new ArrayList<>((int) this.count());
 
-        for (int seqIndex = 0; seqIndex < this.reservedIndexes / 2; seqIndex++) {
-            int sequenceFirstValue = this.sequences[(seqIndex * 2)];
-            int sequenceLastValue = this.sequences[(seqIndex * 2) + 1];
+            for (int seqIndex = 0; seqIndex < this.reservedIndexes / 2; seqIndex++) {
+                int sequenceFirstValue = this.sequences[(seqIndex * 2)];
+                int sequenceLastValue = this.sequences[(seqIndex * 2) + 1];
 
-            for (int val = sequenceFirstValue; val <= sequenceLastValue; val++) {
-                result.add(val);
+                for (int val = sequenceFirstValue; val <= sequenceLastValue; val++) {
+                    result.add(val);
+                }
             }
-        }
 
-        return result;
+            return result;
+        } else {
+            throw new BufferOverflowException();
+        }
     }
 
     public int[] toArray() {
-        int[] result = new int[this.count()];
-        int resultCurrentIndex = 0;
+        if (this.count() <= Integer.MAX_VALUE) {
+            int[] result = new int[(int) this.count()];
+            int resultCurrentIndex = 0;
 
-        for (int seqIndex = 0; seqIndex < this.reservedIndexes / 2; seqIndex++) {
-            int sequenceFirstValue = this.sequences[(seqIndex * 2)];
-            int sequenceLastValue = this.sequences[(seqIndex * 2) + 1];
+            for (int seqIndex = 0; seqIndex < this.reservedIndexes / 2; seqIndex++) {
+                int sequenceFirstValue = this.sequences[(seqIndex * 2)];
+                int sequenceLastValue = this.sequences[(seqIndex * 2) + 1];
 
-            for (int val = sequenceFirstValue; val <= sequenceLastValue; val++) {
-                result[resultCurrentIndex++] = val;
+                for (int val = sequenceFirstValue; val <= sequenceLastValue; val++) {
+                    result[resultCurrentIndex++] = val;
+                }
             }
-        }
 
-        return result;
+            return result;
+        } else {
+            throw new BufferOverflowException();
+        }
     }
 
     public int getNthValue(int desiredIndex) { //todo test
-        final int count = count();
+        final long count = count();
         if (desiredIndex >= count) throw new OutOfRangeException(desiredIndex, 0, count - 1);
 
         if (desiredIndex == 0) {

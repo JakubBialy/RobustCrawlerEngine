@@ -99,7 +99,7 @@ public class DownloaderUtils {
 //        return new GenericHttpClientImpl<>(httpClient);
 //    }
 
-    public static GenericHttpClient<byte[], URI> toGenericHttpClient_V3_2(HttpClient httpClient) {
+    public static GenericHttpClient<byte[], URI> toGenericHttpClient(HttpClient httpClient) {
         //todo cleanup + extract methods
 
         return new GenericHttpClient<byte[], URI>() {

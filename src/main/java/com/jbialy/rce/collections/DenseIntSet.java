@@ -40,7 +40,7 @@ public class DenseIntSet implements SortedSet<Integer>, Queue<Integer> {
 
     @Override
     public int size() {
-        return this.uniqueIntSequence.count();
+        return (int) this.uniqueIntSequence.count();
     }
 
     @Override
@@ -61,7 +61,7 @@ public class DenseIntSet implements SortedSet<Integer>, Queue<Integer> {
     @Override
     public Iterator<Integer> iterator() {
         return new Iterator<>() {
-            private final int size = DenseIntSet.this.uniqueIntSequence.count();
+            private final int size = (int) DenseIntSet.this.uniqueIntSequence.count();
             private int currentIndex = 0;
 
             @Override
@@ -196,16 +196,15 @@ public class DenseIntSet implements SortedSet<Integer>, Queue<Integer> {
                 if (dataChanged) { //data already changed
                     this.uniqueIntSequence.cutRange((int) obj, (int) obj);
                 } else {
-                    int sizeBefore = this.uniqueIntSequence.count();
+                    long sizeBefore = this.uniqueIntSequence.count();
                     this.uniqueIntSequence.cutRange((int) obj, (int) obj);
-                    int sizeAfter = this.uniqueIntSequence.count();
+                    long sizeAfter = this.uniqueIntSequence.count();
                     dataChanged = sizeAfter != sizeBefore;
                 }
             }
         }
 
         return dataChanged;
-
     }
 
     @Override

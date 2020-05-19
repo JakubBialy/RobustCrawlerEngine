@@ -16,11 +16,15 @@ public class CoreDownloader implements Downloader<byte[], URI> {
     private final Function<URI, GenericHttpRequest<URI>> requestMaker;
 
     public CoreDownloader() {
-        this(DownloaderUtils.toGenericHttpClient_V3_2(HttpClientHelper.generateDefaultHttpClient()), CoreHttpRequest::new);
+        this(DownloaderUtils.toGenericHttpClient(HttpClientHelper.generateDefaultHttpClient()), CoreHttpRequest::new);
+    }
+
+    public CoreDownloader(String userAgentString) {
+        this(DownloaderUtils.toGenericHttpClient(HttpClientHelper.generateDefaultHttpClient()), uri -> CoreHttpRequest.withCustomUserAgent(uri, userAgentString));
     }
 
     public CoreDownloader(Function<URI, GenericHttpRequest<URI>> requestMaker) {
-        this(DownloaderUtils.toGenericHttpClient_V3_2(HttpClientHelper.generateDefaultHttpClient()), requestMaker);
+        this(DownloaderUtils.toGenericHttpClient(HttpClientHelper.generateDefaultHttpClient()), requestMaker);
     }
 
     public CoreDownloader(GenericHttpClient<byte[], URI> httpClient, Function<URI, GenericHttpRequest<URI>> requestMaker) {

@@ -100,7 +100,7 @@ public class UniqueIntSequenceTest {
         is.add(Integer.MAX_VALUE);
         Assertions.assertTrue(is.contains(Integer.MAX_VALUE));
 
-        int expectedSize = is.count();
+        long expectedSize = is.count();
 
         Assertions.assertEquals(expectedSize, is.count());
         is.add(Integer.MIN_VALUE);
