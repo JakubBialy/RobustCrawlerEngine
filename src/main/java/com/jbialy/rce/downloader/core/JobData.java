@@ -14,7 +14,7 @@ public interface JobData<D, U> { //D - DownloadResult | U - URI
 
     Supplier<Workspace<U>> workspaceSupplier();
 
-    Receiver<?, DownloadResult<D, U>> responsesHandler();
+    ReceiverInterface<DownloadResult<D, U>> responsesHandler();
 
     Runnable getOnCompleteListener();
 

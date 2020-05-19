@@ -1,19 +1,17 @@
 package com.jbialy.rce.downloader.core;
 
-import com.jbialy.rce.downloader.core.SafelyCloseable;
 import com.jbialy.rce.utils.sneakytry.ThrowableBiConsumer;
-import com.jbialy.rce.utils.sneakytry.ThrowableConsumer;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.function.Supplier;
 
-public class Receiver<I, T> implements SafelyCloseable, ThrowableConsumer<T, Throwable> {
+public class OldReceiver<I, T> implements ReceiverInterface<T> {
     private final Supplier<I> instanceSupplier;
     private final ThrowableBiConsumer<I, T> consumerAction;
     private volatile I instance;
 
-    public Receiver(Supplier<I> consumerSupplier, ThrowableBiConsumer<I, T> consumerAction) {
+    public OldReceiver(Supplier<I> consumerSupplier, ThrowableBiConsumer<I, T> consumerAction) {
         this.instanceSupplier = consumerSupplier;
         this.consumerAction = consumerAction;
     }

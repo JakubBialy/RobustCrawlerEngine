@@ -14,7 +14,6 @@ import com.jbialy.rce.utils.server.SimpleHttpServer;
 import com.jbialy.rce.utils.FileUtils;
 import com.jbialy.rce.utils.HtmlUtils;
 import com.jbialy.rce.utils.WorkspaceCallback;
-import com.jbialy.tests.mock.MockCounterReceiver;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -100,7 +99,7 @@ public class HttpServerTests {
     public void mockServerTest() throws InterruptedException, IOException {
         final int PAGES_COUNT = 10_000;
 
-        final SimpleHttpServer simpleHttpServer = new SimpleHttpServer(PAGES_COUNT);
+        final SimpleHttpServer simpleHttpServer = new SimpleHttpServer(PAGES_COUNT, 8888);
 
         final File apdOutput = APD_FILE;
         final Path checkpointFile = CHECKPOINT_FILE.toPath();

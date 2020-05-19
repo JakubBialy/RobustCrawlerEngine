@@ -14,7 +14,7 @@ public class CallbackTrigger<T> {
         this.callback = callback;
     }
 
-    public static <T> CallbackTrigger createEmpty() {
+    public static CallbackTrigger createEmpty() {
         return new CallbackTrigger(x -> false, todo -> {
         });
     }

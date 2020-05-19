@@ -60,7 +60,8 @@ public class CoreDownloader implements Downloader<byte[], URI> {
         final HttpRequest request = toHttpRequest(requestMaker.apply(uri));
 
         try {
-            final DownloadResponse<byte[], URI> response = httpClient.sendRequest(DownloaderUtils.toGenericRequest(request));
+            final GenericHttpRequest<URI> r = DownloaderUtils.toGenericRequest(request);
+            final DownloadResponse<byte[], URI> response = httpClient.sendRequest(r);
             return new DownloadResult<>(null, response, toGenericHttpRequest(request));
         } catch (Exception e) {
             return new DownloadResult<>(e, null, toGenericHttpRequest(request));

@@ -10,6 +10,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -108,6 +109,7 @@ public class DownloaderUtils {
                 final HttpRequest httpRequest = HttpRequest.newBuilder()
                         .uri(request.getUri())
                         .GET()
+                        .timeout(Duration.ofSeconds(10))
                         .build();
 
                 final HttpResponse<byte[]> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofByteArray());

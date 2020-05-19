@@ -68,6 +68,13 @@ public class GeneralPurposeWorkspace<T extends Comparable<T>> implements Workspa
         return new GeneralPurposeWorkspace<>(todo);
     }
 
+    public static <T extends Comparable<T>> GeneralPurposeWorkspace<T> fromToDoCollection(T... todoElements) {
+        final ArrayList<T> todoList = new ArrayList<>(todoElements.length);
+        Collections.addAll(todoList, todoElements);
+
+        return new GeneralPurposeWorkspace<>(todoList);
+    }
+
     public static <T extends Comparable<T>> GeneralPurposeWorkspace<T> deserializeFromJSON(String json, Class<T> type) {
         return new GsonBuilder().create().fromJson(json, TypeToken.getParameterized(GeneralPurposeWorkspace.class, type).getType());
     }

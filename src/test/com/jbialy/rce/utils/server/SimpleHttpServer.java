@@ -14,11 +14,14 @@ import java.util.regex.Pattern;
 
 public class SimpleHttpServer {
     private static final Pattern END_LINE_DIGITS = Pattern.compile("\\d+$");
-    private static final URI BASE_URI = URI.create("http://localhost:8888");
+    private final URI BASE_URI;
     private final HttpServer httpServer;
 
-    public SimpleHttpServer(long count) throws IOException {
-//    public static void main(String[] args) throws IOException {
+    public SimpleHttpServer(long count, int port) throws IOException {
+        if (port < 0 || port > 65535) throw new IllegalArgumentException("Illegal port");
+
+        BASE_URI = URI.create("http://localhost:" + port);
+
         long firstValue = 0;
         int nextIdHrefsPerPage = 1024;
         int previousIdHrefsPerPage = 24;
@@ -40,16 +43,18 @@ public class SimpleHttpServer {
                         response = MockHtmlUtils.createHtmlMockPage(BASE_URI, id, previousIdHrefsPerPage, firstValue, nextIdHrefsPerPage, firstValue + count - 1);
 
                         exchange.sendResponseHeaders(200, response.length());
-                        OutputStream os = exchange.getResponseBody();
-                        os.write(response.getBytes());
-                        os.close();
+
+                        try (OutputStream os = exchange.getResponseBody()) {
+                            os.write(response.getBytes());
+                        }
                     } else {
                         response = "404";
 
                         exchange.sendResponseHeaders(404, response.length());
-                        OutputStream os = exchange.getResponseBody();
-                        os.write(response.getBytes());
-                        os.close();
+
+                        try (OutputStream os = exchange.getResponseBody()) {
+                            os.write(response.getBytes());
+                        }
                     }
                 }
             }

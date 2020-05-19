@@ -1,8 +1,5 @@
 package com.jbialy.rce.downloader.core;
 
-import com.jbialy.rce.downloader.core.DownloadResponse;
-import com.jbialy.rce.downloader.core.GenericHttpRequest;
-
 public class DownloadResult<T, U> {
     private final Exception exception;
     private final DownloadResponse<T, U> response;
@@ -12,6 +9,15 @@ public class DownloadResult<T, U> {
         this.exception = exception;
         this.response = response;
         this.request = request;
+    }
+
+    @Override
+    public String toString() {
+        return "DownloadResult{" +
+                "exception=" + exception +
+                ", response=" + response +
+                ", request=" + request +
+                '}';
     }
 
     public Exception getException() {

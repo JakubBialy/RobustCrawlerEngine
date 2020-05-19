@@ -108,10 +108,6 @@ public class WorkspaceHelper {
         return CollectionWorkspaceOld.fromToDoCollection(collection);
     }
 
-    public static <U extends Comparable<U>> Workspace<U> fromCollectionAsSet_2(Collection<U> collection) {
-        return GeneralPurposeWorkspace.fromToDoCollection(collection);
-    }
-
     public static class MemoryEfficient {
         private MemoryEfficient() {
         }

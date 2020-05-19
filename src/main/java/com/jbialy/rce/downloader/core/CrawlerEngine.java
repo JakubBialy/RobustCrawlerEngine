@@ -88,7 +88,7 @@ public class CrawlerEngine {
             final CallbackTrigger<Workspace<U>> checkpointCallbackTrigger = job.getCheckpointCallbackTrigger();
             final CallbackTrigger<JobStatistics> progressCallbackTrigger = job.getProgressUpdatesCallbackTrigger();
 
-            try (final Receiver<?, DownloadResult<D, U>> responseReceiver = job.responsesHandler()) {
+            try (final ReceiverInterface<DownloadResult<D, U>> responseReceiver = job.responsesHandler()) {
                 workspaceToFlowable(config.getMaxRate(), requestSafetySwitch, engineState, workspace)
                         //DOWNLOAD
                         .subscribeOn(Schedulers.io())
@@ -110,8 +110,11 @@ public class CrawlerEngine {
                         //POST-PROCESSING
                         .doOnNext(dr -> {
                             if (dr.getException() != null) {
-                                workspace.moveToDamaged(dr.getRequest().getUri());
-                                workspace.moveToDamaged(dr.getResponse().uri());
+                                if (dr.getRequest() != null)
+                                    workspace.moveToDamaged(dr.getRequest().getUri());
+
+                                if (dr.getResponse() != null)
+                                    workspace.moveToDamaged(dr.getResponse().uri());
                             } else {
                                 workspace.moveToDone(dr.getRequest().getUri(), dr.getResponse().uri());
                             }
