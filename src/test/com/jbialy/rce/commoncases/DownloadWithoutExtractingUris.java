@@ -39,7 +39,7 @@ public class DownloadWithoutExtractingUris {
 
         Job<String, URI> job = JobBuilder.htmlBuilder(targets)
                 .setReceiver(new WriteToDirectoryReceiver<>(
-                        downloadResult -> downloadResult.getResponse().body().getBytes(StandardCharsets.UTF_8), // extract to byte[]
+                        downloadResult -> downloadResult.getResponse().body().getBytes(StandardCharsets.UTF_8), // extract the bytes to be saved to the file
                         downloadResult -> downloadResult.getRequest().getUri().getQuery().replaceAll("\\D", "") + ".html", //compute filename
                         new File("./download/") // indicate output directory
                 ))
