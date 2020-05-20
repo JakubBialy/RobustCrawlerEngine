@@ -27,7 +27,7 @@ public class DenseSetBenchmark {
                 .mode(Mode.Throughput)
 //                .measurementIterations(10)
                 .measurementTime(TimeValue.seconds(1))
-                .measurementIterations(2)
+                .measurementIterations(5)
                 .warmupTime(TimeValue.seconds(1))
                 .warmupIterations(1)
                 .build();
@@ -55,7 +55,6 @@ public class DenseSetBenchmark {
 
         blackhole.consume(treeSet);
     }
-
 
     @Benchmark
     public void DenseIntSet_AddValueIncrementedBy_One(Blackhole blackhole, Mock mock) {
@@ -152,22 +151,22 @@ public class DenseSetBenchmark {
             return randomInts;
         }
 
-        public DenseIntSet generateTestSet() {
-            DenseIntSet set = new DenseIntSet();
-
-            for (int i = 0; i < 100; i++) {
-                set.add(i);
-            }
-
-            for (int i = 0; i < 100; i += 10) {
-                set.remove(i);
-            }
-
-            for (int i = 50; i < 60; i++) {
-                set.remove(i);
-            }
-            return set;
-        }
+//        public DenseIntSet generateTestSet() {
+//            DenseIntSet set = new DenseIntSet();
+//
+//            for (int i = 0; i < 100; i++) {
+//                set.add(i);
+//            }
+//
+//            for (int i = 0; i < 100; i += 10) {
+//                set.remove(i);
+//            }
+//
+//            for (int i = 50; i < 60; i++) {
+//                set.remove(i);
+//            }
+//            return set;
+//        }
 
         public DenseIntSet createEmptySet() {
             return new DenseIntSet();
@@ -181,7 +180,6 @@ public class DenseSetBenchmark {
             Random r = new Random(1337);
             while (tmp.size() < intsRandomLength) {
                 tmp.add(Math.abs(r.nextInt()));
-//                tmp.add(r.nextInt());
             }
 
             List<Integer> listTmp = tmp.stream()/*.sorted()*/.collect(Collectors.toList());

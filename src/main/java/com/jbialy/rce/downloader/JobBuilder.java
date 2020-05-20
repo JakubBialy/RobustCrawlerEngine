@@ -48,7 +48,6 @@ public class JobBuilder<D, U extends Comparable<U>> {
     public static JobBuilder<String, URI> htmlBuilder(Collection<URI> uris) {
         return htmlBuilder(GeneralPurposeWorkspace.fromToDoCollection(uris));
     }
-
     public static JobBuilder<String, URI> htmlBuilder(Workspace<URI> workspace) {
         return new JobBuilder<String, URI>(() -> workspace)
                 .setDownloader(new HtmlDownloader());

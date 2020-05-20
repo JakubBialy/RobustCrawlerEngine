@@ -54,5 +54,4 @@ public class UriBenchmark {
         public void setup() {
         }
     }
-
 }

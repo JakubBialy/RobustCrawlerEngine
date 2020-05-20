@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 public class HtmlDownloader implements Downloader<String, URI> {
     private static final Pattern CHARSET_HEADER_PATTERN = Pattern.compile("charset=(.+?)( |$)");
     private static final Charset SPARE_CHARSET = StandardCharsets.UTF_8;
-    private final Downloader<String, URI> internalDownloader = new MapDownloader<>(new CoreDownloader(), download -> {
+    private final Downloader<String, URI> internalDownloader = new DownloaderResultMapper<>(new CoreDownloader(), download -> {
         final List<String> contentTypeValues = download.responseHeaders().get("content-type");
 
         if (contentTypeValues != null) {

@@ -264,11 +264,6 @@ public class UniqueIntSequence {
         }
     }
 
-    private int min(int a, int b) {
-        if (a <= b) return a;
-        return b;
-    }
-
     private int getRawLeftIndexOfSubsequenceContaining(int value) {
         int minSeqRawLeftIndex = 0;
         int maxSeqRawLeftIndex = this.reservedIndexes - 2;

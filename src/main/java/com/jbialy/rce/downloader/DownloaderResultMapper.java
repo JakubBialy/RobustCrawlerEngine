@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-public class MapDownloader<T, R> implements Downloader<R, URI> {
+public class DownloaderResultMapper<T, R> implements Downloader<R, URI> {
     private final Downloader<T, URI> innerDownloader;
     private final Function<DownloadResponse<T, URI>, R> mapper;
 
-    public MapDownloader(Downloader<T, URI> innerDownloader, Function<DownloadResponse<T, URI>, R> mapper) {
+    public DownloaderResultMapper(Downloader<T, URI> innerDownloader, Function<DownloadResponse<T, URI>, R> mapper) {
         this.innerDownloader = innerDownloader;
         this.mapper = mapper;
     }

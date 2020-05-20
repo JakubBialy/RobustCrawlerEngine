@@ -162,4 +162,15 @@ public class Utils {
         }
     }
 
+    public static void shuffleIntArray(int[] inputArray) {
+        final ThreadLocalRandom random = ThreadLocalRandom.current();
+        for (int i = inputArray.length - 1; i > 0; i--) {
+            int indexToSwap = random.nextInt(i + 1);
+
+            int tmp = inputArray[i];
+            inputArray[i] = inputArray[indexToSwap];
+            inputArray[indexToSwap] = tmp;
+        }
+    }
+
 }
