@@ -9,7 +9,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public interface JobData<D, U> { //D - DownloadResult | U - URI
+public interface Job<D, U> { //D - DownloadResult | U - URI
     EngineConfig getConfig();
 
     Supplier<Workspace<U>> workspaceSupplier();

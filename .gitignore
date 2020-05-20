@@ -1,4 +1,6 @@
+download/**
 test_dir/**
+jmh-result.csv
 
 # Created by https://www.gitignore.io/api/java,maven,intellij
 # Edit at https://www.gitignore.io/?templates=java,maven,intellij

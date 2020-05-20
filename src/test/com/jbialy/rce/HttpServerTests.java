@@ -8,7 +8,7 @@ import com.jbialy.rce.downloader.JobBuilder;
 import com.jbialy.rce.downloader.core.CrawlerEngine;
 import com.jbialy.rce.downloader.core.DownloadResult;
 import com.jbialy.rce.downloader.core.EngineConfig;
-import com.jbialy.rce.downloader.core.JobData;
+import com.jbialy.rce.downloader.core.Job;
 import com.jbialy.rce.utils.server.MockDownloaderModule;
 import com.jbialy.rce.utils.server.SimpleHttpServer;
 import com.jbialy.rce.utils.FileUtils;
@@ -62,7 +62,7 @@ public class HttpServerTests {
         final URI seed = mockDownloader.getFirstPage();
         final WorkspaceCallback workspaceCallback = new WorkspaceCallback();
 
-        JobData<String, URI> job = new JobBuilder<String, URI>
+        Job<String, URI> job = new JobBuilder<String, URI>
                 (() -> GeneralPurposeWorkspace.fromFileOrElseCreateFromSeed(URI.class, checkpointFile, seed))
                 .setConfig(new EngineConfig(2, 2, Long.MAX_VALUE)) //Optional
                 .setDownloader(mockDownloader) //Optional
@@ -112,7 +112,7 @@ public class HttpServerTests {
         final URI seed = URI.create("http://localhost:8888/test?id=0");
         final WorkspaceCallback workspaceCallback = new WorkspaceCallback();
 
-        JobData<String, URI> job = new JobBuilder<String, URI>
+        Job<String, URI> job = new JobBuilder<String, URI>
                 (() -> GeneralPurposeWorkspace.fromFileOrElseCreateFromSeed(URI.class, checkpointFile, seed))
                 .setConfig(new EngineConfig(8, 2, Long.MAX_VALUE)) //Optional
                 .setDownloader(new HtmlDownloader()) //Optional

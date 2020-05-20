@@ -6,6 +6,11 @@ import java.time.Duration;
 import java.util.function.Predicate;
 
 public class TriggerHelper {
+
+    private TriggerHelper() {
+
+    }
+
     public static Predicate<CallbackState> after(Duration deltaTime) {
         return jobState -> !jobState.durationUntilLastCall().minus(deltaTime).isNegative();
     }

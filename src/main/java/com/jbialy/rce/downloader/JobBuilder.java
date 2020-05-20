@@ -110,8 +110,8 @@ public class JobBuilder<D, U extends Comparable<U>> {
         return this;
     }
 
-    public JobData<D, U> build() {
-        return new JobData<>() {
+    public Job<D, U> build() {
+        return new Job<>() {
             @Override
             public EngineConfig getConfig() {
                 return configV3;

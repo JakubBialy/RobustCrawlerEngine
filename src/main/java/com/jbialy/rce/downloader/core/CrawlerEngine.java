@@ -16,22 +16,22 @@ import java.util.function.Predicate;
 
 public class CrawlerEngine {
     private static final int PARALLEL_JOBS = 2;
-    private final List<JobData<?, ?>> internalJobs;
+    private final List<Job<?, ?>> internalJobs;
     private final EngineState engineState;
     private final CountDownLatch finishedJobsLatch;
 
-    public CrawlerEngine(Collection<JobData<?, ?>> jobs) {
+    public CrawlerEngine(Collection<Job<?, ?>> jobs) {
         this.internalJobs = List.copyOf(jobs);
         this.engineState = new EngineState();
         this.finishedJobsLatch = new CountDownLatch(this.internalJobs.size());
     }
 
-    public CrawlerEngine(JobData<?, ?>... jobs) {
+    public CrawlerEngine(Job<?, ?>... jobs) {
         this(jobsTableToArray(jobs));
     }
 
-    private static List<JobData<?, ?>> jobsTableToArray(JobData<?, ?>... jobs) {
-        List<JobData<?, ?>> result = new ArrayList<>(jobs.length);
+    private static List<Job<?, ?>> jobsTableToArray(Job<?, ?>... jobs) {
+        List<Job<?, ?>> result = new ArrayList<>(jobs.length);
         result.addAll(Arrays.asList(jobs));
         return result;
     }
@@ -71,7 +71,7 @@ public class CrawlerEngine {
         });
     }
 
-    private static <U, D> ThrowingRunnable<Throwable> makeRunnable(EngineState engineState, JobData<D, U> job) {
+    private static <U, D> ThrowingRunnable<Throwable> makeRunnable(EngineState engineState, Job<D, U> job) {
         return () -> {
             //Job environment
             final EngineConfig config = job.getConfig();
@@ -132,11 +132,11 @@ public class CrawlerEngine {
     }
 
     public void start() {
-        Iterator<JobData<?, ?>> jobsIterator = internalJobs.iterator();
+        Iterator<Job<?, ?>> jobsIterator = internalJobs.iterator();
 
-        Flowable.<ThrowingRunnable<Throwable>, Iterator<JobData<?, ?>>>generate(() -> jobsIterator, (state, emitter) -> {
+        Flowable.<ThrowingRunnable<Throwable>, Iterator<Job<?, ?>>>generate(() -> jobsIterator, (state, emitter) -> {
             if (jobsIterator.hasNext()) {
-                final JobData<?, ?> job = jobsIterator.next();
+                final Job<?, ?> job = jobsIterator.next();
                 emitter.onNext(makeRunnable(engineState, job));
             } else {
                 emitter.onComplete();
