@@ -20,11 +20,13 @@ public class DownloadWithoutExtractingUris {
     @BeforeAll
     public static void init() throws IOException {
         mirroringServer = new MirroringServer(8888);
+        new File("./download/").delete();
     }
 
     @AfterAll
     public static void cleanUp() {
         mirroringServer.stop();
+        new File("./download/").delete();
     }
 
     @Test
